@@ -3,9 +3,10 @@
 use std::io::Write;
 use std::process::{Command, Stdio};
 
-fn run_bin(input: &str) -> (bool, String, String) {
+fn run_bin(args: &[&str], input: &str) -> (bool, String, String) {
     let exe = env!("CARGO_BIN_EXE_kimi-space-rs");
     let mut child = Command::new(exe)
+        .args(args)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -25,9 +26,13 @@ fn run_bin(input: &str) -> (bool, String, String) {
     )
 }
 
+fn rows(stdout: &str) -> Vec<f64> {
+    stdout.lines().map(|l| l.parse::<f64>().unwrap()).collect()
+}
+
 #[test]
 fn summarizes_stdin() {
-    let (ok, stdout, _) = run_bin("1 2 3 4");
+    let (ok, stdout, _) = run_bin(&[], "1 2 3 4");
     assert!(ok);
     assert!(stdout.contains("count=4"));
     assert!(stdout.contains("mean=2.5"));
@@ -37,22 +42,80 @@ fn summarizes_stdin() {
 }
 
 #[test]
+fn explicit_summary_subcommand() {
+    let (ok, stdout, _) = run_bin(&["summary"], "1 2 3 4");
+    assert!(ok);
+    assert!(stdout.contains("count=4"));
+}
+
+#[test]
 fn accepts_newline_separated_input() {
-    let (ok, stdout, _) = run_bin("1\n2\n3\n4\n");
+    let (ok, stdout, _) = run_bin(&[], "1\n2\n3\n4\n");
     assert!(ok);
     assert!(stdout.contains("count=4"));
 }
 
 #[test]
 fn empty_input_fails() {
-    let (ok, _, stderr) = run_bin("");
+    let (ok, _, stderr) = run_bin(&[], "");
     assert!(!ok);
     assert!(stderr.contains("未读取到任何数值"));
 }
 
 #[test]
 fn invalid_token_fails() {
-    let (ok, _, stderr) = run_bin("1 two 3");
+    let (ok, _, stderr) = run_bin(&[], "1 two 3");
     assert!(!ok);
     assert!(stderr.contains("无法解析数值"));
+}
+
+#[test]
+fn zscores_subcommand() {
+    let (ok, stdout, _) = run_bin(&["zscores"], "1 2 3");
+    assert!(ok);
+    let r = rows(&stdout);
+    assert_eq!(r.len(), 3);
+    assert!((r[0] - -1.0).abs() < 1e-12);
+    assert!(r[1].abs() < 1e-12);
+    assert!((r[2] - 1.0).abs() < 1e-12);
+}
+
+#[test]
+fn pct_change_subcommand() {
+    let (ok, stdout, _) = run_bin(&["pct-change"], "100 110 99");
+    assert!(ok);
+    let lines: Vec<&str> = stdout.lines().collect();
+    assert_eq!(lines.len(), 3);
+    assert_eq!(lines[0], "NaN");
+    assert!((lines[1].parse::<f64>().unwrap() - 0.1).abs() < 1e-12);
+}
+
+#[test]
+fn log_returns_subcommand() {
+    let (ok, stdout, _) = run_bin(&["log-returns"], "1 2.718281828459045");
+    assert!(ok);
+    let lines: Vec<&str> = stdout.lines().collect();
+    assert_eq!(lines[0], "NaN");
+    assert!((lines[1].parse::<f64>().unwrap() - 1.0).abs() < 1e-12);
+}
+
+#[test]
+fn minmax_subcommand() {
+    let (ok, stdout, _) = run_bin(&["minmax", "0", "1"], "10 20 30");
+    assert!(ok);
+    assert_eq!(rows(&stdout), vec![0.0, 0.5, 1.0]);
+}
+
+#[test]
+fn minmax_requires_bounds() {
+    let (ok, _, stderr) = run_bin(&["minmax"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("minmax 需要"));
+}
+
+#[test]
+fn unknown_subcommand_fails() {
+    let (ok, _, stderr) = run_bin(&["frobnicate"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("未知子命令"));
 }
