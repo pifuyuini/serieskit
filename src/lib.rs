@@ -65,6 +65,22 @@ fn percentile_sorted(sorted: &[f64], q: f64) -> f64 {
     sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo as f64)
 }
 
+/// IQR 栅栏法：返回布尔向量，true 表示落在 [Q1-k*IQR, Q3+k*IQR] 内的正常值；
+/// 空输入返回 None。
+pub fn iqr_mask(values: &[f64], k: f64) -> Option<Vec<bool>> {
+    if values.is_empty() {
+        return None;
+    }
+    let mut sorted = values.to_vec();
+    sorted.sort_by(f64::total_cmp);
+    let q1 = percentile_sorted(&sorted, 25.0);
+    let q3 = percentile_sorted(&sorted, 75.0);
+    let iqr = q3 - q1;
+    let lo = q1 - k * iqr;
+    let hi = q3 + k * iqr;
+    Some(values.iter().map(|v| (lo..=hi).contains(v)).collect())
+}
+
 /// 总体中心矩；空输入返回 None。
 fn central_moment(values: &[f64], order: u32) -> Option<f64> {
     let m = mean(values)?;
@@ -276,5 +292,33 @@ mod tests {
     #[test]
     fn summarize_empty_is_none() {
         assert_eq!(summarize(&[]), None);
+    }
+
+    #[test]
+    fn iqr_mask_flags_extreme_value() {
+        let mask = iqr_mask(&[1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0], 1.5).unwrap();
+        assert_eq!(mask, vec![true, true, true, true, true, true, false]);
+    }
+
+    #[test]
+    fn iqr_mask_clean_data_all_true() {
+        assert!(
+            iqr_mask(&[1.0, 2.0, 3.0, 4.0], 1.5)
+                .unwrap()
+                .iter()
+                .all(|m| *m)
+        );
+    }
+
+    #[test]
+    fn iqr_mask_custom_k() {
+        let data = [1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 10.0];
+        assert!(!iqr_mask(&data, 1.0).unwrap()[6]);
+        assert!(iqr_mask(&data, 5.0).unwrap()[6]);
+    }
+
+    #[test]
+    fn iqr_mask_empty_is_none() {
+        assert_eq!(iqr_mask(&[], 1.5), None);
     }
 }
