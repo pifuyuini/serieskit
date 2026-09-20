@@ -11,7 +11,7 @@
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str = "用法: kimi-space-rs [summary|means|zscores|pct-change|log-returns|outliers [k]|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: kimi-space-rs [summary|means|zscores|pct-change|log-returns|moving-average <w>|outliers [k]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -57,6 +57,17 @@ fn main() -> ExitCode {
             "zscores" => print_rows(&kimi_space::zscores(&values)),
             "pct-change" => print_rows(&kimi_space::pct_change(&values)),
             "log-returns" => print_rows(&kimi_space::log_returns(&values)),
+            "moving-average" => {
+                let window = match args.get(1).and_then(|s| s.parse::<usize>().ok()) {
+                    Some(w) => w,
+                    None => {
+                        return Err(format!("moving-average 需要 <window> 参数\n{USAGE}"));
+                    }
+                };
+                let out = kimi_space::moving_average(&values, window)
+                    .ok_or("window 为 0 或超过数据长度")?;
+                print_rows(&out);
+            }
             "means" => {
                 let a = kimi_space::mean(&values).ok_or("未读取到任何数值")?;
                 println!("arithmetic={a}");

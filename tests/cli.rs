@@ -168,3 +168,24 @@ fn means_non_positive_gives_nan() {
     assert!(stdout.contains("geometric=NaN"));
     assert!(stdout.contains("harmonic=NaN"));
 }
+
+#[test]
+fn moving_average_subcommand() {
+    let (ok, stdout, _) = run_bin(&["moving-average", "2"], "1 2 3 4");
+    assert!(ok);
+    assert_eq!(rows(&stdout), vec![1.5, 2.5, 3.5]);
+}
+
+#[test]
+fn moving_average_requires_window() {
+    let (ok, _, stderr) = run_bin(&["moving-average"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("需要 <window>"));
+}
+
+#[test]
+fn moving_average_window_too_large_fails() {
+    let (ok, _, stderr) = run_bin(&["moving-average", "9"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("window 为 0 或超过数据长度"));
+}
