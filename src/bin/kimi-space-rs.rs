@@ -95,6 +95,7 @@ fn main() -> ExitCode {
                     .map(|(v, _)| *v)
                     .collect();
                 print_rows(&out);
+                eprintln!("# {} 个异常值", out.len());
             }
             "minmax" => {
                 let (Some(lo), Some(hi)) = (

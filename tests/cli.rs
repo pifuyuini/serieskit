@@ -122,16 +122,18 @@ fn unknown_subcommand_fails() {
 
 #[test]
 fn outliers_subcommand() {
-    let (ok, stdout, _) = run_bin(&["outliers"], "1 2 2.5 3 3.5 4 100");
+    let (ok, stdout, stderr) = run_bin(&["outliers"], "1 2 2.5 3 3.5 4 100");
     assert!(ok);
     assert_eq!(rows(&stdout), vec![100.0]);
+    assert!(stderr.contains("1 个异常值"));
 }
 
 #[test]
 fn outliers_custom_k() {
-    let (ok, stdout, _) = run_bin(&["outliers", "5"], "1 2 2.5 3 3.5 4 10");
+    let (ok, stdout, stderr) = run_bin(&["outliers", "5"], "1 2 2.5 3 3.5 4 10");
     assert!(ok);
     assert!(stdout.trim().is_empty());
+    assert!(stderr.contains("0 个异常值"));
 }
 
 #[test]
