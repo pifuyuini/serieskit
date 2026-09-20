@@ -106,6 +106,24 @@ def plot_outliers(
     return ax
 
 
+def plot_box(
+    df: pd.DataFrame,
+    *,
+    columns: Sequence[str] | None = None,
+    ax: Axes | None = None,
+    title: str | None = None,
+) -> Axes:
+    """按列绘制箱线图，便于比较多列数值的分布。"""
+    data = (
+        df[list(columns)] if columns is not None else df.select_dtypes(include="number")
+    )
+    ax = _get_ax(ax)
+    ax.boxplot([data[c].dropna() for c in data.columns], tick_labels=list(data.columns))
+    if title:
+        ax.set_title(title)
+    return ax
+
+
 def plot_correlation_heatmap(
     df: pd.DataFrame,
     *,
