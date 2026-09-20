@@ -8,6 +8,39 @@ pub fn mean(values: &[f64]) -> Option<f64> {
     Some(values.iter().sum::<f64>() / values.len() as f64)
 }
 
+/// 加权平均；空输入、长度不一致、权重为负或权重和为 0 返回 None。
+pub fn weighted_mean(values: &[f64], weights: &[f64]) -> Option<f64> {
+    if values.is_empty() || values.len() != weights.len() {
+        return None;
+    }
+    if weights.iter().any(|w| *w < 0.0) {
+        return None;
+    }
+    let total: f64 = weights.iter().sum();
+    if total == 0.0 {
+        return None;
+    }
+    Some(values.iter().zip(weights).map(|(v, w)| v * w).sum::<f64>() / total)
+}
+
+/// 几何平均；空输入或非正值返回 None。
+pub fn geometric_mean(values: &[f64]) -> Option<f64> {
+    if values.is_empty() || values.iter().any(|v| *v <= 0.0) {
+        return None;
+    }
+    let n = values.len() as f64;
+    Some((values.iter().map(|v| v.ln()).sum::<f64>() / n).exp())
+}
+
+/// 调和平均；空输入或非正值返回 None。
+pub fn harmonic_mean(values: &[f64]) -> Option<f64> {
+    if values.is_empty() || values.iter().any(|v| *v <= 0.0) {
+        return None;
+    }
+    let n = values.len() as f64;
+    Some(n / values.iter().map(|v| 1.0 / v).sum::<f64>())
+}
+
 /// 样本标准差（ddof=1）；元素少于 2 个时返回 None。
 pub fn sample_std(values: &[f64]) -> Option<f64> {
     if values.len() < 2 {
@@ -412,5 +445,44 @@ mod tests {
     fn log_returns_negative_ratio_is_nan() {
         let r = log_returns(&[1.0, -2.0]);
         assert!(r[1].is_nan());
+    }
+
+    #[test]
+    fn weighted_mean_basic() {
+        assert_eq!(
+            weighted_mean(&[80.0, 90.0, 60.0], &[3.0, 2.0, 5.0]),
+            Some(72.0)
+        );
+    }
+
+    #[test]
+    fn weighted_mean_invalid() {
+        assert_eq!(weighted_mean(&[], &[]), None);
+        assert_eq!(weighted_mean(&[1.0, 2.0], &[1.0]), None);
+        assert_eq!(weighted_mean(&[1.0, 2.0], &[1.0, -1.0]), None);
+        assert_eq!(weighted_mean(&[1.0, 2.0], &[0.0, 0.0]), None);
+    }
+
+    #[test]
+    fn geometric_mean_basic() {
+        assert_eq!(geometric_mean(&[1.0, 4.0]), Some(2.0));
+        assert_eq!(geometric_mean(&[1.0, 0.0]), None);
+        assert_eq!(geometric_mean(&[]), None);
+    }
+
+    #[test]
+    fn harmonic_mean_basic() {
+        let h = harmonic_mean(&[1.0, 2.0, 4.0]).unwrap();
+        assert!((h - 12.0 / 7.0).abs() < 1e-12);
+        assert_eq!(harmonic_mean(&[1.0, -1.0]), None);
+    }
+
+    #[test]
+    fn mean_ordering_inequality() {
+        let data = [1.0, 2.0, 4.0, 8.0];
+        let h = harmonic_mean(&data).unwrap();
+        let g = geometric_mean(&data).unwrap();
+        let a = mean(&data).unwrap();
+        assert!(h <= g && g <= a);
     }
 }

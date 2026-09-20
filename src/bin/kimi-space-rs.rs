@@ -11,7 +11,7 @@
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str = "用法: kimi-space-rs [summary|zscores|pct-change|log-returns|outliers [k]|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: kimi-space-rs [summary|means|zscores|pct-change|log-returns|outliers [k]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -57,6 +57,18 @@ fn main() -> ExitCode {
             "zscores" => print_rows(&kimi_space::zscores(&values)),
             "pct-change" => print_rows(&kimi_space::pct_change(&values)),
             "log-returns" => print_rows(&kimi_space::log_returns(&values)),
+            "means" => {
+                let a = kimi_space::mean(&values).ok_or("未读取到任何数值")?;
+                println!("arithmetic={a}");
+                println!(
+                    "geometric={}",
+                    kimi_space::geometric_mean(&values).unwrap_or(f64::NAN)
+                );
+                println!(
+                    "harmonic={}",
+                    kimi_space::harmonic_mean(&values).unwrap_or(f64::NAN)
+                );
+            }
             "outliers" => {
                 let k = match args.get(1) {
                     Some(s) => s

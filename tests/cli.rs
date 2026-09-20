@@ -140,3 +140,31 @@ fn outliers_bad_k_fails() {
     assert!(!ok);
     assert!(stderr.contains("无法解析栅栏系数"));
 }
+
+#[test]
+fn means_subcommand() {
+    let (ok, stdout, _) = run_bin(&["means"], "1 2 4");
+    assert!(ok);
+    let get = |key: &str| -> f64 {
+        stdout
+            .lines()
+            .find(|l| l.starts_with(key))
+            .unwrap()
+            .split('=')
+            .nth(1)
+            .unwrap()
+            .parse()
+            .unwrap()
+    };
+    assert!((get("arithmetic") - 7.0 / 3.0).abs() < 1e-12);
+    assert!((get("geometric") - 2.0).abs() < 1e-12);
+    assert!((get("harmonic") - 12.0 / 7.0).abs() < 1e-12);
+}
+
+#[test]
+fn means_non_positive_gives_nan() {
+    let (ok, stdout, _) = run_bin(&["means"], "1 -2 3");
+    assert!(ok);
+    assert!(stdout.contains("geometric=NaN"));
+    assert!(stdout.contains("harmonic=NaN"));
+}
