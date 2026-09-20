@@ -119,3 +119,24 @@ fn unknown_subcommand_fails() {
     assert!(!ok);
     assert!(stderr.contains("未知子命令"));
 }
+
+#[test]
+fn outliers_subcommand() {
+    let (ok, stdout, _) = run_bin(&["outliers"], "1 2 2.5 3 3.5 4 100");
+    assert!(ok);
+    assert_eq!(rows(&stdout), vec![100.0]);
+}
+
+#[test]
+fn outliers_custom_k() {
+    let (ok, stdout, _) = run_bin(&["outliers", "5"], "1 2 2.5 3 3.5 4 10");
+    assert!(ok);
+    assert!(stdout.trim().is_empty());
+}
+
+#[test]
+fn outliers_bad_k_fails() {
+    let (ok, _, stderr) = run_bin(&["outliers", "abc"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("无法解析栅栏系数"));
+}

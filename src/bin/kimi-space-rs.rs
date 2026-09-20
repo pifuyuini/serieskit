@@ -11,8 +11,7 @@
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str =
-    "用法: kimi-space-rs [summary|zscores|pct-change|log-returns|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: kimi-space-rs [summary|zscores|pct-change|log-returns|outliers [k]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -58,6 +57,22 @@ fn main() -> ExitCode {
             "zscores" => print_rows(&kimi_space::zscores(&values)),
             "pct-change" => print_rows(&kimi_space::pct_change(&values)),
             "log-returns" => print_rows(&kimi_space::log_returns(&values)),
+            "outliers" => {
+                let k = match args.get(1) {
+                    Some(s) => s
+                        .parse::<f64>()
+                        .map_err(|_| format!("无法解析栅栏系数: {s:?}"))?,
+                    None => 1.5,
+                };
+                let mask = kimi_space::iqr_mask(&values, k).ok_or("未读取到任何数值")?;
+                let out: Vec<f64> = values
+                    .iter()
+                    .zip(&mask)
+                    .filter(|(_, m)| !**m)
+                    .map(|(v, _)| *v)
+                    .collect();
+                print_rows(&out);
+            }
             "minmax" => {
                 let (Some(lo), Some(hi)) = (
                     args.get(1).and_then(|s| s.parse::<f64>().ok()),
