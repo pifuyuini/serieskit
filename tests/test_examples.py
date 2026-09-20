@@ -18,7 +18,14 @@ def test_demo_report_runs(tmp_path):
         check=True,
     )
     assert "price" in proc.stdout
-    for name in ["demo.csv", "series.png", "hist.png", "heatmap.png"]:
+    for name in [
+        "demo.csv",
+        "series.png",
+        "hist.png",
+        "heatmap.png",
+        "outliers.png",
+        "box.png",
+    ]:
         artifact = tmp_path / name
         assert artifact.exists(), f"缺少产物 {name}"
         assert artifact.stat().st_size > 0
