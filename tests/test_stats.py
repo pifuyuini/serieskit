@@ -1,7 +1,15 @@
 import numpy as np
 import pytest
 
-from kimi_space.stats import SummaryStats, moving_average, summarize, zscores
+from kimi_space.stats import (
+    SummaryStats,
+    geometric_mean,
+    harmonic_mean,
+    moving_average,
+    summarize,
+    weighted_mean,
+    zscores,
+)
 
 
 class TestSummarize:
@@ -96,3 +104,44 @@ class TestZscores:
     def test_empty_raises(self):
         with pytest.raises(ValueError, match="为空"):
             zscores([])
+
+
+class TestMeans:
+    def test_weighted_mean(self):
+        assert weighted_mean([80, 90, 60], [3, 2, 5]) == pytest.approx(72.0)
+
+    def test_weighted_mean_equal_weights_is_mean(self):
+        assert weighted_mean([1, 2, 3], [1, 1, 1]) == pytest.approx(2.0)
+
+    def test_weighted_mean_length_mismatch(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            weighted_mean([1, 2], [1])
+
+    def test_weighted_mean_negative_weight(self):
+        with pytest.raises(ValueError, match="权重不能为负"):
+            weighted_mean([1, 2], [1, -1])
+
+    def test_weighted_mean_zero_total(self):
+        with pytest.raises(ValueError, match="权重和为 0"):
+            weighted_mean([1, 2], [0, 0])
+
+    def test_geometric_mean(self):
+        assert geometric_mean([1, 4]) == pytest.approx(2.0)
+
+    def test_geometric_mean_rejects_non_positive(self):
+        with pytest.raises(ValueError, match="正数"):
+            geometric_mean([1, 0, 2])
+
+    def test_harmonic_mean(self):
+        assert harmonic_mean([1, 2, 4]) == pytest.approx(12 / 7)
+
+    def test_harmonic_mean_rejects_negative(self):
+        with pytest.raises(ValueError, match="正数"):
+            harmonic_mean([1, -1])
+
+    def test_mean_ordering_inequality(self):
+        data = [1.0, 2.0, 4.0, 8.0]
+        h = harmonic_mean(data)
+        g = geometric_mean(data)
+        a = float(np.mean(data))
+        assert h <= g <= a

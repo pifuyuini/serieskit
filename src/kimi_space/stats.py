@@ -94,3 +94,47 @@ def zscores(values: Iterable[float]) -> np.ndarray:
     if std == 0.0:
         return np.zeros_like(arr)
     return (arr - float(np.mean(arr))) / std
+
+
+def weighted_mean(values: Iterable[float], weights: Iterable[float]) -> float:
+    """加权平均；长度不一致、权重为负或权重和为 0 时抛出 ValueError。"""
+    v = np.asarray(list(values), dtype=float).ravel()
+    w = np.asarray(list(weights), dtype=float).ravel()
+    if v.size == 0:
+        msg = "values 为空"
+        raise ValueError(msg)
+    if v.size != w.size:
+        msg = f"长度不一致: values {v.size} vs weights {w.size}"
+        raise ValueError(msg)
+    if (w < 0).any():
+        msg = "权重不能为负"
+        raise ValueError(msg)
+    total = float(np.sum(w))
+    if total == 0.0:
+        msg = "权重和为 0"
+        raise ValueError(msg)
+    return float(np.dot(v, w) / total)
+
+
+def geometric_mean(values: Iterable[float]) -> float:
+    """几何平均；空输入或非正值抛出 ValueError。"""
+    arr = _as_clean_array(values)
+    if arr.size == 0:
+        msg = "values 为空"
+        raise ValueError(msg)
+    if (arr <= 0).any():
+        msg = "几何平均要求全部为正数"
+        raise ValueError(msg)
+    return float(scipy_stats.gmean(arr))
+
+
+def harmonic_mean(values: Iterable[float]) -> float:
+    """调和平均；空输入或非正值抛出 ValueError。"""
+    arr = _as_clean_array(values)
+    if arr.size == 0:
+        msg = "values 为空"
+        raise ValueError(msg)
+    if (arr <= 0).any():
+        msg = "调和平均要求全部为正数"
+        raise ValueError(msg)
+    return float(scipy_stats.hmean(arr))
