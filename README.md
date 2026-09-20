@@ -38,4 +38,17 @@ cargo test               # 运行 Rust 测试
 ```bash
 kimi-space summary data.csv            # 输出 CSV 各数值列的描述性统计
 kimi-space summary data.csv --json     # 以 JSON 格式输出
+kimi-space hist data.csv price         # 直方图保存为 price_hist.png
+kimi-space heatmap data.csv            # 相关系数热力图保存为 heatmap.png
+```
+
+## Rust 数值内核
+
+Rust crate 提供与 Python 统计模块语义一致的数值内核（`mean`、`sample_std`、
+`moving_average`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`），
+以及一个 Unix 风格的 stdin 摘要工具：
+
+```bash
+echo "1 2 3 4" | cargo run --bin kimi-space-rs    # 输出 key=value 形式的描述性统计
+cargo test                                         # 运行全部 Rust 测试
 ```
