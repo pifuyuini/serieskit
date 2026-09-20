@@ -34,9 +34,16 @@ select = ["E", "F", "I", "UP", "B"]
 testpaths = ["tests"]
 addopts = "-q"
 
+[tool.mypy]
+mypy_path = "src"
+strict = true
+
 [dependency-groups]
 dev = [
     "hypothesis>=6.168.0",
+    "mypy>=2.3.1",
+    "pandas-stubs>=3.0.5.260914",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
+    "scipy-stubs>=1.18.1.0",
 ]

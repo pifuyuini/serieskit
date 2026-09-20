@@ -5,9 +5,10 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pandas as pd
+from matplotlib.figure import Figure
 
 from kimi_space import __version__
 from kimi_space.io import load_csv, numeric_summary
@@ -21,6 +22,13 @@ from kimi_space.plotting import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from matplotlib.axes import Axes
+
+
+def _save(ax: Axes, output: str) -> None:
+    cast("Figure", ax.figure).savefig(output, bbox_inches="tight")
+    print(output)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -93,8 +101,7 @@ def _cmd_hist(args: argparse.Namespace) -> int:
     apply_style()
     output = args.output or f"{args.column}_hist.png"
     ax = plot_histogram(df[args.column], bins=args.bins, title=args.column)
-    ax.figure.savefig(output, bbox_inches="tight")
-    print(output)
+    _save(ax, output)
     return 0
 
 
@@ -107,8 +114,7 @@ def _cmd_series(args: argparse.Namespace) -> int:
         smooth_window=args.smooth,
         title=args.column,
     )
-    ax.figure.savefig(output, bbox_inches="tight")
-    print(output)
+    _save(ax, output)
     return 0
 
 
@@ -117,8 +123,7 @@ def _cmd_heatmap(args: argparse.Namespace) -> int:
     columns = args.columns.split(",") if args.columns else None
     apply_style()
     ax = plot_correlation_heatmap(df, columns=columns)
-    ax.figure.savefig(args.output, bbox_inches="tight")
-    print(args.output)
+    _save(ax, args.output)
     return 0
 
 
@@ -137,7 +142,7 @@ def _cmd_outliers(args: argparse.Namespace) -> int:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        return args.func(args)
+        return int(args.func(args))
     except (FileNotFoundError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
