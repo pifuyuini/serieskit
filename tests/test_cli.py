@@ -210,3 +210,25 @@ class TestTransform:
     def test_non_numeric_column_returns_1(self, csv_path, capsys):
         assert main(["transform", str(csv_path), "name"]) == 1
         assert "error" in capsys.readouterr().err
+
+
+class TestCorr:
+    def test_default_pearson(self, csv_path, capsys):
+        assert main(["corr", str(csv_path)]) == 0
+        out = capsys.readouterr().out
+        assert "1.0000" in out
+        assert "a" in out and "b" in out
+        assert "name" not in out
+
+    def test_column_subset(self, csv_path, capsys):
+        assert main(["corr", str(csv_path), "--columns", "a"]) == 0
+        out = capsys.readouterr().out
+        assert "b" not in out.splitlines()[0]
+
+    def test_spearman_method(self, csv_path, capsys):
+        assert main(["corr", str(csv_path), "--method", "spearman"]) == 0
+        assert "1.0000" in capsys.readouterr().out
+
+    def test_bad_column_returns_1(self, csv_path, capsys):
+        assert main(["corr", str(csv_path), "--columns", "nope"]) == 1
+        assert "error" in capsys.readouterr().err

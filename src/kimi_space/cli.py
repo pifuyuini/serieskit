@@ -78,6 +78,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_box.add_argument("--output", default="box.png", help="输出图片路径")
     p_box.set_defaults(func=_cmd_box)
 
+    p_corr = sub.add_parser("corr", help="输出数值列相关系数矩阵（文本表格）")
+    p_corr.add_argument("csv", help="CSV 文件路径")
+    p_corr.add_argument("--columns", help="逗号分隔的列名子集")
+    p_corr.add_argument(
+        "--method",
+        choices=["pearson", "spearman", "kendall"],
+        default="pearson",
+        help="相关系数方法（默认 pearson）",
+    )
+    p_corr.set_defaults(func=_cmd_corr)
+
     p_out = sub.add_parser("outliers", help="检测指定数值列的异常值")
     p_out.add_argument("csv", help="CSV 文件路径")
     p_out.add_argument("column", help="数值列名")
@@ -163,6 +174,18 @@ def _cmd_box(args: argparse.Namespace) -> int:
     apply_style()
     ax = plot_box(df, columns=columns)
     _save(ax, args.output)
+    return 0
+
+
+def _cmd_corr(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv)
+    data = (
+        df[args.columns.split(",")]
+        if args.columns
+        else df.select_dtypes(include="number")
+    )
+    with pd.option_context("display.float_format", lambda v: f"{v:.4f}"):
+        print(data.corr(method=args.method).to_string())
     return 0
 
 
