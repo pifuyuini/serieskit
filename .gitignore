@@ -13,3 +13,6 @@ wheels/
 # Added by cargo
 
 /target
+
+# Task-specific temp dirs
+tmp/
