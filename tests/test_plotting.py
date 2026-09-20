@@ -48,6 +48,18 @@ class TestPlotSeries:
         ax = plot_series([1, 2], title="demo")
         assert ax.get_title() == "demo"
 
+    def test_custom_x_axis(self):
+        ax = plot_series([10, 20, 30], x=[100, 200, 300])
+        np.testing.assert_array_equal(ax.lines[0].get_xdata(), [100, 200, 300])
+
+    def test_custom_x_aligned_with_smoothing(self):
+        ax = plot_series([1, 2, 3, 4], x=[10, 20, 30, 40], smooth_window=2)
+        np.testing.assert_array_equal(ax.lines[1].get_xdata(), [20, 30, 40])
+
+    def test_x_length_mismatch_raises(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            plot_series([1, 2, 3], x=[1, 2])
+
 
 class TestPlotHistogram:
     def test_returns_axes_with_reference_lines(self):

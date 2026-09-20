@@ -47,19 +47,24 @@ def _get_ax(ax: Axes | None) -> Axes:
 def plot_series(
     values: Iterable[float],
     *,
+    x: Iterable[float] | None = None,
     ax: Axes | None = None,
     title: str | None = None,
     label: str | None = None,
     smooth_window: int | None = None,
 ) -> Axes:
-    """绘制序列折线；smooth_window 给定时叠加等权滑动平均曲线。"""
+    """绘制序列折线；x 可指定横轴，smooth_window 给定时叠加等权滑动平均曲线。"""
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
-    ax.plot(arr, label=label or "series")
+    xs = np.arange(arr.size) if x is None else np.asarray(list(x))
+    if xs.size != arr.size:
+        msg = f"x 与 values 长度不一致: {xs.size} vs {arr.size}"
+        raise ValueError(msg)
+    ax.plot(xs, arr, label=label or "series")
     if smooth_window is not None:
         ma = moving_average(arr, smooth_window)
         offset = smooth_window - 1
-        ax.plot(np.arange(offset, arr.size), ma, label=f"MA{smooth_window}")
+        ax.plot(xs[offset:], ma, label=f"MA{smooth_window}")
     if title:
         ax.set_title(title)
     ax.legend()

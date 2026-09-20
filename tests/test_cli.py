@@ -79,6 +79,12 @@ class TestSeries:
         assert main(["series", str(csv_path), "name"]) == 1
         assert "error" in capsys.readouterr().err
 
+    def test_custom_x_column(self, csv_path, tmp_path):
+        out = tmp_path / "s.png"
+        code = main(["series", str(csv_path), "a", "--x", "b", "--output", str(out)])
+        assert code == 0
+        assert out.exists()
+
 
 class TestHeatmap:
     def test_saves_output(self, csv_path, tmp_path):

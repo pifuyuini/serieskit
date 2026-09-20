@@ -60,6 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_series = sub.add_parser("series", help="绘制数值列折线图（可选滑动平均）并保存")
     p_series.add_argument("csv", help="CSV 文件路径")
     p_series.add_argument("column", help="数值列名")
+    p_series.add_argument("--x", help="作为横轴的列名（默认行号）")
     p_series.add_argument("--smooth", type=int, help="滑动平均窗口，如 10")
     p_series.add_argument("--output", help="输出图片路径（默认 <列名>_series.png）")
     p_series.set_defaults(func=_cmd_series)
@@ -134,8 +135,10 @@ def _cmd_series(args: argparse.Namespace) -> int:
     df = load_csv(args.csv, numeric_columns=[args.column])
     apply_style()
     output = args.output or f"{args.column}_series.png"
+    x = df[args.x] if args.x else None
     ax = plot_series(
         df[args.column],
+        x=x,
         smooth_window=args.smooth,
         title=args.column,
     )
