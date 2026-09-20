@@ -97,3 +97,33 @@ class TestParser:
     def test_no_command_exits(self):
         with pytest.raises(SystemExit):
             main([])
+
+
+class TestOutliers:
+    @pytest.fixture
+    def outlier_csv(self, tmp_path):
+        path = tmp_path / "out.csv"
+        rows = "\n".join(f"v,{v}" for v in [*range(10, 110), 200])
+        path.write_text(f"name,x\n{rows}\n", encoding="utf-8")
+        return path
+
+    def test_iqr_default(self, outlier_csv, capsys):
+        assert main(["outliers", str(outlier_csv), "x"]) == 0
+        captured = capsys.readouterr()
+        assert "200.0" in captured.out
+        assert "1 个异常值" in captured.err
+
+    def test_zscore_method(self, outlier_csv, capsys):
+        code = main(["outliers", str(outlier_csv), "x", "--method", "zscore"])
+        assert code == 0
+        assert "200.0" in capsys.readouterr().out
+
+    def test_clean_column_reports_none(self, csv_path, capsys):
+        assert main(["outliers", str(csv_path), "a"]) == 0
+        captured = capsys.readouterr()
+        assert captured.out.strip() == ""
+        assert "0 个异常值" in captured.err
+
+    def test_non_numeric_column_returns_1(self, outlier_csv, capsys):
+        assert main(["outliers", str(outlier_csv), "name"]) == 1
+        assert "error" in capsys.readouterr().err

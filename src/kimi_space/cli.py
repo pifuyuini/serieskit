@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 import pandas as pd
 
 from kimi_space.io import load_csv, numeric_summary
+from kimi_space.outliers import iqr_outliers, zscore_outliers
 from kimi_space.plotting import (
     apply_style,
     plot_correlation_heatmap,
@@ -52,6 +53,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_heat.add_argument("--columns", help="逗号分隔的列名子集")
     p_heat.add_argument("--output", default="heatmap.png", help="输出图片路径")
     p_heat.set_defaults(func=_cmd_heatmap)
+
+    p_out = sub.add_parser("outliers", help="检测指定数值列的异常值")
+    p_out.add_argument("csv", help="CSV 文件路径")
+    p_out.add_argument("column", help="数值列名")
+    p_out.add_argument(
+        "--method",
+        choices=["iqr", "zscore"],
+        default="iqr",
+        help="检测方法（默认 iqr）",
+    )
+    p_out.add_argument("--k", type=float, default=1.5, help="IQR 栅栏系数（默认 1.5）")
+    p_out.add_argument(
+        "--threshold", type=float, default=3.0, help="z-score 阈值（默认 3.0）"
+    )
+    p_out.set_defaults(func=_cmd_outliers)
 
     return parser
 
@@ -99,6 +115,18 @@ def _cmd_heatmap(args: argparse.Namespace) -> int:
     ax = plot_correlation_heatmap(df, columns=columns)
     ax.figure.savefig(args.output, bbox_inches="tight")
     print(args.output)
+    return 0
+
+
+def _cmd_outliers(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv, numeric_columns=[args.column])
+    if args.method == "iqr":
+        result = iqr_outliers(df[args.column], k=args.k)
+    else:
+        result = zscore_outliers(df[args.column], threshold=args.threshold)
+    for value in result:
+        print(value)
+    print(f"# {len(result)} 个异常值", file=sys.stderr)
     return 0
 
 
