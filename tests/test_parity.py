@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 from scipy import stats as scipy_stats
 
-from kimi_space.stats import zscores
+from kimi_space.stats import geometric_mean, harmonic_mean, zscores
 from kimi_space.transform import log_returns, minmax_normalize, pct_change
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -51,6 +51,20 @@ def rust_rows(rust_bin, command: list[str], values) -> list[float]:
         check=True,
     )
     return [float(line) for line in proc.stdout.strip().splitlines()]
+
+
+def rust_key_values(rust_bin, command: list[str], values) -> dict[str, float]:
+    proc = subprocess.run(
+        [str(rust_bin), *command],
+        input=" ".join(map(repr, values)),
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return {
+        k: float(v)
+        for k, v in (line.split("=", 1) for line in proc.stdout.strip().splitlines())
+    }
 
 
 def assert_rows_close(actual, expected) -> None:
@@ -112,3 +126,11 @@ class TestRustParity:
         rust = rust_rows(rust_bin, ["minmax", "-1", "1"], data)
         expected = minmax_normalize(data, feature_range=(-1.0, 1.0)).tolist()
         assert_rows_close(rust, expected)
+
+    def test_means_parity(self, rust_bin):
+        rng = np.random.default_rng(11)
+        data = rng.uniform(0.5, 5.0, size=300).tolist()
+        rust = rust_key_values(rust_bin, ["means"], data)
+        assert rust["arithmetic"] == pytest.approx(np.mean(data), rel=1e-12)
+        assert rust["geometric"] == pytest.approx(geometric_mean(data), rel=1e-12)
+        assert rust["harmonic"] == pytest.approx(harmonic_mean(data), rel=1e-12)
