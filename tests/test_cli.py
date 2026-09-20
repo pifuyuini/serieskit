@@ -50,6 +50,26 @@ class TestHist:
         assert "error" in capsys.readouterr().err
 
 
+class TestSeries:
+    def test_saves_default_output(self, csv_path, tmp_path, monkeypatch, capsys):
+        monkeypatch.chdir(tmp_path)
+        assert main(["series", str(csv_path), "a"]) == 0
+        assert (tmp_path / "a_series.png").exists()
+        assert "a_series.png" in capsys.readouterr().out
+
+    def test_smooth_and_custom_output(self, csv_path, tmp_path):
+        out = tmp_path / "s.png"
+        code = main(
+            ["series", str(csv_path), "b", "--smooth", "2", "--output", str(out)]
+        )
+        assert code == 0
+        assert out.exists() and out.stat().st_size > 0
+
+    def test_non_numeric_column_returns_1(self, csv_path, capsys):
+        assert main(["series", str(csv_path), "name"]) == 1
+        assert "error" in capsys.readouterr().err
+
+
 class TestHeatmap:
     def test_saves_output(self, csv_path, tmp_path):
         out = tmp_path / "heat.png"

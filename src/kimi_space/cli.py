@@ -14,6 +14,7 @@ from kimi_space.plotting import (
     apply_style,
     plot_correlation_heatmap,
     plot_histogram,
+    plot_series,
 )
 
 if TYPE_CHECKING:
@@ -38,6 +39,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_hist.add_argument("--bins", type=int, default=20, help="直方图分箱数（默认 20）")
     p_hist.add_argument("--output", help="输出图片路径（默认 <列名>_hist.png）")
     p_hist.set_defaults(func=_cmd_hist)
+
+    p_series = sub.add_parser("series", help="绘制数值列折线图（可选滑动平均）并保存")
+    p_series.add_argument("csv", help="CSV 文件路径")
+    p_series.add_argument("column", help="数值列名")
+    p_series.add_argument("--smooth", type=int, help="滑动平均窗口，如 10")
+    p_series.add_argument("--output", help="输出图片路径（默认 <列名>_series.png）")
+    p_series.set_defaults(func=_cmd_series)
 
     p_heat = sub.add_parser("heatmap", help="绘制数值列相关系数热力图并保存")
     p_heat.add_argument("csv", help="CSV 文件路径")
@@ -65,6 +73,20 @@ def _cmd_hist(args: argparse.Namespace) -> int:
     apply_style()
     output = args.output or f"{args.column}_hist.png"
     ax = plot_histogram(df[args.column], bins=args.bins, title=args.column)
+    ax.figure.savefig(output, bbox_inches="tight")
+    print(output)
+    return 0
+
+
+def _cmd_series(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv, numeric_columns=[args.column])
+    apply_style()
+    output = args.output or f"{args.column}_series.png"
+    ax = plot_series(
+        df[args.column],
+        smooth_window=args.smooth,
+        title=args.column,
+    )
     ax.figure.savefig(output, bbox_inches="tight")
     print(output)
     return 0
