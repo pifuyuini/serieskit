@@ -83,5 +83,10 @@ ax.figure.savefig("price.png")
 ## 开发
 
 ```bash
-pre-commit install     # 安装 ruff 钩子（可选，配置见 .pre-commit-config.yaml）
+pre-commit install                  # 安装 ruff 钩子（可选，配置见 .pre-commit-config.yaml）
+.venv/bin/mypy src/kimi_space       # 静态类型检查（--strict）
+.venv/bin/pytest --cov=kimi_space   # 带覆盖率的测试（CI 门槛 95%）
+cargo clippy --all-targets          # Rust lint
 ```
+
+提交前请遵循 AGENTS.md 的审计式提交规范（按路径精确 `git add`，禁止 `git add -A`）。
