@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -21,9 +22,10 @@ def load_csv(
 ) -> pd.DataFrame:
     """读取 CSV 并可校验必需列、将指定列强制转为数值类型。
 
-    numeric_columns 中无法解析为数值的单元格会抛出 ValueError。
+    path 为 "-" 时从标准输入读取。numeric_columns 中无法解析为数值的单元格
+    会抛出 ValueError。
     """
-    df = pd.read_csv(path)
+    df = pd.read_csv(sys.stdin) if str(path) == "-" else pd.read_csv(path)
     if required_columns is not None:
         missing = [c for c in required_columns if c not in df.columns]
         if missing:

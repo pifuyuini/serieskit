@@ -44,6 +44,14 @@ class TestLoadCsv:
         with pytest.raises(FileNotFoundError):
             load_csv(tmp_path / "absent.csv")
 
+    def test_stdin_dash(self, monkeypatch):
+        import io
+
+        monkeypatch.setattr("sys.stdin", io.StringIO(CSV_TEXT))
+        df = load_csv("-")
+        assert list(df.columns) == ["name", "a", "b"]
+        assert len(df) == 3
+
 
 class TestNumericSummary:
     def test_summarizes_numeric_columns(self):

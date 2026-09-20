@@ -44,6 +44,7 @@ kimi-space hist data.csv price         # 直方图保存为 price_hist.png
 kimi-space series data.csv price --smooth 10   # 折线图（叠加 10 点滑动平均）
 kimi-space heatmap data.csv            # 相关系数热力图保存为 heatmap.png
 kimi-space outliers data.csv price --method iqr   # 逐行输出异常值
+cat data.csv | kimi-space summary -    # 路径为 - 时从标准输入读取（全部子命令通用）
 ```
 
 ## Rust 数值内核
