@@ -103,6 +103,25 @@ class TestHeatmap:
         assert "error" in capsys.readouterr().err
 
 
+class TestBox:
+    def test_saves_output(self, csv_path, tmp_path):
+        out = tmp_path / "box.png"
+        assert main(["box", str(csv_path), "--output", str(out)]) == 0
+        assert out.exists() and out.stat().st_size > 0
+
+    def test_column_subset(self, csv_path, tmp_path):
+        out = tmp_path / "box.png"
+        code = main(["box", str(csv_path), "--columns", "a,b", "--output", str(out)])
+        assert code == 0
+        assert out.exists()
+
+    def test_bad_column_returns_1(self, csv_path, tmp_path, capsys):
+        out = tmp_path / "box.png"
+        code = main(["box", str(csv_path), "--columns", "nope", "--output", str(out)])
+        assert code == 1
+        assert "error" in capsys.readouterr().err
+
+
 class TestParser:
     def test_no_command_exits(self):
         with pytest.raises(SystemExit):

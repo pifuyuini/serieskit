@@ -15,6 +15,7 @@ from kimi_space.io import load_csv, numeric_summary
 from kimi_space.outliers import iqr_outliers, zscore_outliers
 from kimi_space.plotting import (
     apply_style,
+    plot_box,
     plot_correlation_heatmap,
     plot_histogram,
     plot_series,
@@ -68,6 +69,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_heat.add_argument("--columns", help="逗号分隔的列名子集")
     p_heat.add_argument("--output", default="heatmap.png", help="输出图片路径")
     p_heat.set_defaults(func=_cmd_heatmap)
+
+    p_box = sub.add_parser("box", help="绘制数值列箱线图并保存")
+    p_box.add_argument("csv", help="CSV 文件路径")
+    p_box.add_argument("--columns", help="逗号分隔的列名子集")
+    p_box.add_argument("--output", default="box.png", help="输出图片路径")
+    p_box.set_defaults(func=_cmd_box)
 
     p_out = sub.add_parser("outliers", help="检测指定数值列的异常值")
     p_out.add_argument("csv", help="CSV 文件路径")
@@ -141,6 +148,15 @@ def _cmd_heatmap(args: argparse.Namespace) -> int:
     columns = args.columns.split(",") if args.columns else None
     apply_style()
     ax = plot_correlation_heatmap(df, columns=columns)
+    _save(ax, args.output)
+    return 0
+
+
+def _cmd_box(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv)
+    columns = args.columns.split(",") if args.columns else None
+    apply_style()
+    ax = plot_box(df, columns=columns)
     _save(ax, args.output)
     return 0
 
