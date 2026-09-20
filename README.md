@@ -12,6 +12,8 @@
 │   ├── stats.py        # 描述性统计与滑动窗口计算
 │   ├── io.py           # CSV 装载与轻量校验
 │   ├── plotting.py     # matplotlib 统一风格绘图辅助
+│   ├── outliers.py     # 异常值检测（IQR / z-score）
+│   ├── transform.py    # 归一化、变化率、对数收益
 │   └── cli.py          # 命令行入口：kimi-space
 ├── tests/              # pytest 测试
 ├── src/ (Rust)         # Rust 数值内核（cargo crate）
@@ -39,7 +41,9 @@ cargo test               # 运行 Rust 测试
 kimi-space summary data.csv            # 输出 CSV 各数值列的描述性统计
 kimi-space summary data.csv --json     # 以 JSON 格式输出
 kimi-space hist data.csv price         # 直方图保存为 price_hist.png
+kimi-space series data.csv price --smooth 10   # 折线图（叠加 10 点滑动平均）
 kimi-space heatmap data.csv            # 相关系数热力图保存为 heatmap.png
+kimi-space outliers data.csv price --method iqr   # 逐行输出异常值
 ```
 
 ## Rust 数值内核
@@ -73,4 +77,11 @@ ax.figure.savefig("price.png")
 
 ```bash
 .venv/bin/python examples/demo_report.py   # 生成合成数据、统计摘要与三张图表
+.venv/bin/python examples/benchmark.py     # Python 与 Rust 内核吞吐对照
+```
+
+## 开发
+
+```bash
+pre-commit install     # 安装 ruff 钩子（可选，配置见 .pre-commit-config.yaml）
 ```
