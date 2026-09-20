@@ -2,6 +2,23 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.2.0] - 2026-09-21
+
+### 新增
+
+- Python
+  - `stats`：加权平均、几何平均、调和平均
+  - `plotting`：`plot_box` 多列箱线图
+  - CLI：`box` 子命令；`summary --output` 落盘 CSV
+- Rust
+  - 内核：`minmax_normalize`、`pct_change`、`log_returns`、`weighted_mean`、`geometric_mean`、`harmonic_mean`
+  - `kimi-space-rs` 子命令化：`summary`（默认）、`means`、`zscores`、`pct-change`、`log-returns`、`outliers [k]`、`minmax <lo> <hi>`
+- 测试
+  - parity 校验扩展到变换与均值子命令（随机数据 rel 1e-12）
+- CI
+  - Rust job 增加 cargo 缓存
+  - Python 3.12/3.13 矩阵构建
+
 ## [0.1.0] - 2026-09-21
 
 首个可用版本。

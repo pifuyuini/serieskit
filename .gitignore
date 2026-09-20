@@ -17,5 +17,8 @@ wheels/
 # Task-specific temp dirs
 tmp/
 
+# Coverage artifacts
+.coverage
+
 # Example artifacts
 examples/output/
