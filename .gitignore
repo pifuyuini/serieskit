@@ -16,3 +16,6 @@ wheels/
 
 # Task-specific temp dirs
 tmp/
+
+# Example artifacts
+examples/output/

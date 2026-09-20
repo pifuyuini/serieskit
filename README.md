@@ -52,3 +52,25 @@ Rust crate 提供与 Python 统计模块语义一致的数值内核（`mean`、`
 echo "1 2 3 4" | cargo run --bin kimi-space-rs    # 输出 key=value 形式的描述性统计
 cargo test                                         # 运行全部 Rust 测试
 ```
+
+## Python 库用法
+
+```python
+from kimi_space import summarize, moving_average, zscores
+from kimi_space.io import load_csv, numeric_summary
+from kimi_space.plotting import apply_style, plot_series
+
+stats = summarize([1, 2, 3, 4, 5])      # SummaryStats(count=5, mean=3.0, ...)
+df = load_csv("data.csv", required_columns=["price"])
+table = numeric_summary(df)              # 每个数值列一行的统计表
+
+apply_style()
+ax = plot_series(df["price"], smooth_window=10, title="price")
+ax.figure.savefig("price.png")
+```
+
+## 示例
+
+```bash
+.venv/bin/python examples/demo_report.py   # 生成合成数据、统计摘要与三张图表
+```

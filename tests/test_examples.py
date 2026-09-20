@@ -1,0 +1,21 @@
+"""示例脚本的冒烟测试：保证示例随代码演进保持可运行。"""
+
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def test_demo_report_runs(tmp_path):
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "examples" / "demo_report.py"), str(tmp_path)],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "price" in proc.stdout
+    for name in ["demo.csv", "series.png", "hist.png", "heatmap.png"]:
+        artifact = tmp_path / name
+        assert artifact.exists(), f"缺少产物 {name}"
+        assert artifact.stat().st_size > 0
