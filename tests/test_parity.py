@@ -3,6 +3,7 @@
 需要本机安装 cargo；没有 cargo 的环境（如纯 Python CI）自动跳过。
 """
 
+import math
 import shutil
 import subprocess
 from pathlib import Path
@@ -10,6 +11,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 from scipy import stats as scipy_stats
+
+from kimi_space.stats import zscores
+from kimi_space.transform import log_returns, minmax_normalize, pct_change
 
 ROOT = Path(__file__).resolve().parent.parent
 BIN = ROOT / "target" / "debug" / "kimi-space-rs"
@@ -38,6 +42,26 @@ def rust_summary(rust_bin, values) -> dict[str, float]:
     return dict(line.split("=", 1) for line in proc.stdout.strip().splitlines())
 
 
+def rust_rows(rust_bin, command: list[str], values) -> list[float]:
+    proc = subprocess.run(
+        [str(rust_bin), *command],
+        input=" ".join(map(repr, values)),
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return [float(line) for line in proc.stdout.strip().splitlines()]
+
+
+def assert_rows_close(actual, expected) -> None:
+    assert len(actual) == len(expected)
+    for a, e in zip(actual, expected, strict=True):
+        if math.isnan(e):
+            assert math.isnan(a)
+        else:
+            assert a == pytest.approx(e, rel=1e-12)
+
+
 class TestRustParity:
     def test_normal_sample(self, rust_bin):
         rng = np.random.default_rng(42)
@@ -63,3 +87,28 @@ class TestRustParity:
         assert float(rust["q25"]) == pytest.approx(3.25)
         assert float(rust["q75"]) == pytest.approx(7.75)
         assert float(rust["kurtosis"]) == pytest.approx(-1.2242424242424244, rel=1e-12)
+
+    def test_zscores_parity(self, rust_bin):
+        rng = np.random.default_rng(7)
+        data = rng.normal(size=200).tolist()
+        rust = rust_rows(rust_bin, ["zscores"], data)
+        assert_rows_close(rust, zscores(data).tolist())
+
+    def test_pct_change_parity(self, rust_bin):
+        rng = np.random.default_rng(8)
+        data = (100 + rng.normal(size=100).cumsum()).tolist()
+        rust = rust_rows(rust_bin, ["pct-change"], data)
+        assert_rows_close(rust, pct_change(data).tolist())
+
+    def test_log_returns_parity(self, rust_bin):
+        rng = np.random.default_rng(9)
+        data = np.exp(rng.normal(size=100)).tolist()
+        rust = rust_rows(rust_bin, ["log-returns"], data)
+        assert_rows_close(rust, log_returns(data).tolist())
+
+    def test_minmax_parity(self, rust_bin):
+        rng = np.random.default_rng(10)
+        data = rng.normal(size=100).tolist()
+        rust = rust_rows(rust_bin, ["minmax", "-1", "1"], data)
+        expected = minmax_normalize(data, feature_range=(-1.0, 1.0)).tolist()
+        assert_rows_close(rust, expected)
