@@ -154,6 +154,50 @@ pub fn summarize(values: &[f64]) -> Option<Summary> {
     })
 }
 
+/// 最小-最大归一化到 [lo, hi]；常数序列映射到区间中点。
+/// 空输入或 lo >= hi 返回 None。
+pub fn minmax_normalize(values: &[f64], lo: f64, hi: f64) -> Option<Vec<f64>> {
+    if values.is_empty() || lo.partial_cmp(&hi) != Some(std::cmp::Ordering::Less) {
+        return None;
+    }
+    let mut sorted = values.to_vec();
+    sorted.sort_by(f64::total_cmp);
+    let (min, max) = (sorted[0], sorted[sorted.len() - 1]);
+    let span = max - min;
+    if span == 0.0 {
+        return Some(vec![(lo + hi) / 2.0; values.len()]);
+    }
+    Some(
+        values
+            .iter()
+            .map(|v| (v - min) / span * (hi - lo) + lo)
+            .collect(),
+    )
+}
+
+/// 相邻变化率，长度与输入一致；首元素与前值为 0 处为 NaN。
+pub fn pct_change(values: &[f64]) -> Vec<f64> {
+    let mut out = vec![f64::NAN; values.len()];
+    for i in 1..values.len() {
+        if values[i - 1] != 0.0 {
+            out[i] = (values[i] - values[i - 1]) / values[i - 1];
+        }
+    }
+    out
+}
+
+/// 对数收益 ln(v_t / v_{t-1})，首元素与比值非正处为 NaN。
+pub fn log_returns(values: &[f64]) -> Vec<f64> {
+    let mut out = vec![f64::NAN; values.len()];
+    for i in 1..values.len() {
+        let ratio = values[i] / values[i - 1];
+        if ratio > 0.0 {
+            out[i] = ratio.ln();
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -320,5 +364,53 @@ mod tests {
     #[test]
     fn iqr_mask_empty_is_none() {
         assert_eq!(iqr_mask(&[], 1.5), None);
+    }
+
+    #[test]
+    fn minmax_normalize_default_range() {
+        let r = minmax_normalize(&[10.0, 20.0, 30.0], 0.0, 1.0).unwrap();
+        assert_close(&r, &[0.0, 0.5, 1.0]);
+    }
+
+    #[test]
+    fn minmax_normalize_constant_maps_to_midpoint() {
+        assert_eq!(
+            minmax_normalize(&[7.0, 7.0], -1.0, 1.0),
+            Some(vec![0.0, 0.0])
+        );
+    }
+
+    #[test]
+    fn minmax_normalize_invalid() {
+        assert_eq!(minmax_normalize(&[], 0.0, 1.0), None);
+        assert_eq!(minmax_normalize(&[1.0], 1.0, 1.0), None);
+        assert_eq!(minmax_normalize(&[1.0], 2.0, 1.0), None);
+    }
+
+    #[test]
+    fn pct_change_known_values() {
+        let r = pct_change(&[100.0, 110.0, 99.0]);
+        assert!(r[0].is_nan());
+        assert_close(&r[1..], &[0.1, -0.1]);
+    }
+
+    #[test]
+    fn pct_change_zero_predecessor_is_nan() {
+        let r = pct_change(&[0.0, 5.0, 10.0]);
+        assert!(r[1].is_nan());
+        assert_eq!(r[2], 1.0);
+    }
+
+    #[test]
+    fn log_returns_known_values() {
+        let r = log_returns(&[1.0, std::f64::consts::E, std::f64::consts::E.powi(2)]);
+        assert!(r[0].is_nan());
+        assert_close(&r[1..], &[1.0, 1.0]);
+    }
+
+    #[test]
+    fn log_returns_negative_ratio_is_nan() {
+        let r = log_returns(&[1.0, -2.0]);
+        assert!(r[1].is_nan());
     }
 }
