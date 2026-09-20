@@ -31,7 +31,7 @@ jobs:
         run: uv run mypy src/kimi_space
 
       - name: Pytest
-        run: uv run pytest
+        run: uv run pytest --cov=kimi_space --cov-report=term-missing --cov-fail-under=95
 
   rust:
     runs-on: ubuntu-latest

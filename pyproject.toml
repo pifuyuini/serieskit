@@ -38,6 +38,12 @@ addopts = "-q"
 mypy_path = "src"
 strict = true
 
+[tool.coverage.report]
+exclude_also = [
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
 [dependency-groups]
 dev = [
     "hypothesis>=6.168.0",
@@ -45,5 +51,6 @@ dev = [
     "pandas-stubs>=3.0.5.260914",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
     "scipy-stubs>=1.18.1.0",
 ]

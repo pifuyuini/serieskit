@@ -80,6 +80,10 @@ class TestPlotOutliers:
         assert len(ax.lines) == 1
         assert ax.get_legend() is not None
 
+    def test_title_is_set(self):
+        ax = plot_outliers([1.0, 2.0, 3.0], title="demo")
+        assert ax.get_title() == "demo"
+
 
 class TestPlotCorrelationHeatmap:
     def test_draws_mesh_and_text(self):
