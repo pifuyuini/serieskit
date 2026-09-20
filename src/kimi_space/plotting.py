@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from kimi_space.outliers import iqr_mask
 from kimi_space.stats import moving_average
 
 if TYPE_CHECKING:
@@ -78,6 +79,27 @@ def plot_histogram(
     ax.hist(arr, bins=bins, alpha=0.75)
     ax.axvline(np.mean(arr), color="C1", linestyle="--", label="mean")
     ax.axvline(np.median(arr), color="C2", linestyle=":", label="median")
+    if title:
+        ax.set_title(title)
+    ax.legend()
+    return ax
+
+
+def plot_outliers(
+    values: Iterable[float],
+    *,
+    k: float = 1.5,
+    ax: Axes | None = None,
+    title: str | None = None,
+) -> Axes:
+    """绘制序列折线并以红色散点标出 IQR 栅栏法判定的异常值。"""
+    ax = _get_ax(ax)
+    arr = np.asarray(list(values), dtype=float)
+    ax.plot(arr, label="series")
+    mask = iqr_mask(arr, k=k)
+    if not mask.all():
+        idx = np.flatnonzero(~mask)
+        ax.scatter(idx, arr[idx], color="C3", zorder=3, label=f"outliers ({idx.size})")
     if title:
         ax.set_title(title)
     ax.legend()

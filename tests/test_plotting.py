@@ -8,6 +8,7 @@ from kimi_space.plotting import (
     apply_style,
     plot_correlation_heatmap,
     plot_histogram,
+    plot_outliers,
     plot_series,
 )
 
@@ -58,6 +59,26 @@ class TestPlotHistogram:
     def test_custom_bins(self):
         ax = plot_histogram(np.arange(100), bins=10)
         assert len(ax.patches) == 10
+
+
+class TestPlotOutliers:
+    def test_marks_outliers_with_scatter(self):
+        data = [1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0]
+        ax = plot_outliers(data)
+        assert len(ax.collections) == 1
+        offsets = ax.collections[0].get_offsets()
+        assert offsets.shape == (1, 2)
+        assert offsets[0, 0] == 6  # 异常值的索引
+        assert offsets[0, 1] == 100.0
+
+    def test_clean_series_has_no_scatter(self):
+        ax = plot_outliers([1.0, 2.0, 3.0, 4.0])
+        assert len(ax.collections) == 0
+
+    def test_returns_axes_with_line(self):
+        ax = plot_outliers([1.0, 2.0, 100.0, 2.0, 3.0, 4.0, 5.0], k=1.5)
+        assert len(ax.lines) == 1
+        assert ax.get_legend() is not None
 
 
 class TestPlotCorrelationHeatmap:
