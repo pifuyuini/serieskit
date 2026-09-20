@@ -12,12 +12,13 @@ from matplotlib.figure import Figure
 
 from kimi_space import __version__
 from kimi_space.io import load_csv, numeric_summary
-from kimi_space.outliers import iqr_outliers, zscore_outliers
+from kimi_space.outliers import iqr_mask, zscore_mask
 from kimi_space.plotting import (
     apply_style,
     plot_box,
     plot_correlation_heatmap,
     plot_histogram,
+    plot_outliers,
     plot_series,
 )
 from kimi_space.stats import zscores
@@ -90,6 +91,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_out.add_argument(
         "--threshold", type=float, default=3.0, help="z-score 阈值（默认 3.0）"
     )
+    p_out.add_argument("--plot", help="同时保存异常值标注图到指定路径")
     p_out.set_defaults(func=_cmd_outliers)
 
     p_trans = sub.add_parser("transform", help="对指定数值列做变换并逐行输出")
@@ -167,12 +169,18 @@ def _cmd_box(args: argparse.Namespace) -> int:
 def _cmd_outliers(args: argparse.Namespace) -> int:
     df = load_csv(args.csv, numeric_columns=[args.column])
     if args.method == "iqr":
-        result = iqr_outliers(df[args.column], k=args.k)
+        mask = iqr_mask(df[args.column], k=args.k)
     else:
-        result = zscore_outliers(df[args.column], threshold=args.threshold)
+        mask = zscore_mask(df[args.column], threshold=args.threshold)
+    values = df[args.column].to_numpy(dtype=float)
+    result = values[~mask]
     for value in result:
         print(value)
     print(f"# {len(result)} 个异常值", file=sys.stderr)
+    if args.plot:
+        apply_style()
+        ax = plot_outliers(values, mask=mask, title=args.column)
+        cast("Figure", ax.figure).savefig(args.plot, bbox_inches="tight")
     return 0
 
 

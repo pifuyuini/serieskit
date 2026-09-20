@@ -97,6 +97,17 @@ class TestPlotOutliers:
         ax = plot_outliers([1.0, 2.0, 3.0], title="demo")
         assert ax.get_title() == "demo"
 
+    def test_explicit_mask(self):
+        ax = plot_outliers([1.0, 2.0, 3.0], mask=[True, False, True])
+        assert len(ax.collections) == 1
+        offsets = ax.collections[0].get_offsets()
+        assert offsets[0, 0] == 1
+        assert offsets[0, 1] == 2.0
+
+    def test_mask_length_mismatch_raises(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            plot_outliers([1.0, 2.0], mask=[True])
+
 
 class TestPlotBox:
     def test_labels_match_columns(self):

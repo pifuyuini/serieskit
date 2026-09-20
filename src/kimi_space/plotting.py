@@ -94,16 +94,23 @@ def plot_outliers(
     values: Iterable[float],
     *,
     k: float = 1.5,
+    mask: Iterable[bool] | None = None,
     ax: Axes | None = None,
     title: str | None = None,
 ) -> Axes:
-    """绘制序列折线并以红色散点标出 IQR 栅栏法判定的异常值。"""
+    """绘制序列折线并以红色散点标出异常值。
+
+    默认用 IQR 栅栏法判定；mask 给定时直接使用（True 表示正常值）。
+    """
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
     ax.plot(arr, label="series")
-    mask = iqr_mask(arr, k=k)
-    if not mask.all():
-        idx = np.flatnonzero(~mask)
+    m = iqr_mask(arr, k=k) if mask is None else np.asarray(list(mask), dtype=bool)
+    if m.size != arr.size:
+        msg = f"mask 与 values 长度不一致: {m.size} vs {arr.size}"
+        raise ValueError(msg)
+    if not m.all():
+        idx = np.flatnonzero(~m)
         ax.scatter(idx, arr[idx], color="C3", zorder=3, label=f"outliers ({idx.size})")
     if title:
         ax.set_title(title)

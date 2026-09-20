@@ -171,6 +171,12 @@ class TestOutliers:
         assert main(["outliers", str(outlier_csv), "name"]) == 1
         assert "error" in capsys.readouterr().err
 
+    def test_plot_option_saves_figure(self, outlier_csv, tmp_path):
+        out = tmp_path / "out.png"
+        code = main(["outliers", str(outlier_csv), "x", "--plot", str(out)])
+        assert code == 0
+        assert out.exists() and out.stat().st_size > 0
+
 
 class TestTransform:
     def test_zscore_default(self, csv_path, capsys):

@@ -125,6 +125,10 @@ class TestMeans:
         with pytest.raises(ValueError, match="权重和为 0"):
             weighted_mean([1, 2], [0, 0])
 
+    def test_weighted_mean_empty(self):
+        with pytest.raises(ValueError, match="为空"):
+            weighted_mean([], [])
+
     def test_geometric_mean(self):
         assert geometric_mean([1, 4]) == pytest.approx(2.0)
 
@@ -132,12 +136,20 @@ class TestMeans:
         with pytest.raises(ValueError, match="正数"):
             geometric_mean([1, 0, 2])
 
+    def test_geometric_mean_empty(self):
+        with pytest.raises(ValueError, match="为空"):
+            geometric_mean([])
+
     def test_harmonic_mean(self):
         assert harmonic_mean([1, 2, 4]) == pytest.approx(12 / 7)
 
     def test_harmonic_mean_rejects_negative(self):
         with pytest.raises(ValueError, match="正数"):
             harmonic_mean([1, -1])
+
+    def test_harmonic_mean_empty(self):
+        with pytest.raises(ValueError, match="为空"):
+            harmonic_mean([])
 
     def test_mean_ordering_inequality(self):
         data = [1.0, 2.0, 4.0, 8.0]
