@@ -19,6 +19,8 @@ from kimi_space.plotting import (
     plot_histogram,
     plot_series,
 )
+from kimi_space.stats import zscores
+from kimi_space.transform import log_returns, minmax_normalize, pct_change
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -81,6 +83,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_out.set_defaults(func=_cmd_outliers)
 
+    p_trans = sub.add_parser("transform", help="对指定数值列做变换并逐行输出")
+    p_trans.add_argument("csv", help="CSV 文件路径")
+    p_trans.add_argument("column", help="数值列名")
+    p_trans.add_argument(
+        "--method",
+        choices=["minmax", "pct_change", "log_returns", "zscore"],
+        default="zscore",
+        help="变换方法（默认 zscore）",
+    )
+    p_trans.set_defaults(func=_cmd_transform)
+
     return parser
 
 
@@ -136,6 +149,22 @@ def _cmd_outliers(args: argparse.Namespace) -> int:
     for value in result:
         print(value)
     print(f"# {len(result)} 个异常值", file=sys.stderr)
+    return 0
+
+
+def _cmd_transform(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv, numeric_columns=[args.column])
+    series = df[args.column]
+    if args.method == "minmax":
+        result = minmax_normalize(series)
+    elif args.method == "pct_change":
+        result = pct_change(series)
+    elif args.method == "log_returns":
+        result = log_returns(series)
+    else:
+        result = zscores(series)
+    for value in result:
+        print(value)
     return 0
 
 

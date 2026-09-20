@@ -133,3 +133,37 @@ class TestOutliers:
     def test_non_numeric_column_returns_1(self, outlier_csv, capsys):
         assert main(["outliers", str(outlier_csv), "name"]) == 1
         assert "error" in capsys.readouterr().err
+
+
+class TestTransform:
+    def test_zscore_default(self, csv_path, capsys):
+        assert main(["transform", str(csv_path), "a"]) == 0
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert len(lines) == 3
+        assert float(lines[0]) == pytest.approx(-1.0)
+
+    def test_pct_change_first_line_is_nan(self, csv_path, capsys):
+        assert main(["transform", str(csv_path), "a", "--method", "pct_change"]) == 0
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert lines[0] == "nan"
+        assert float(lines[1]) == pytest.approx(1.0)
+
+    def test_minmax_in_unit_range(self, csv_path, capsys):
+        assert main(["transform", str(csv_path), "b", "--method", "minmax"]) == 0
+        values = [float(x) for x in capsys.readouterr().out.strip().splitlines()]
+        assert min(values) == pytest.approx(0.0)
+        assert max(values) == pytest.approx(1.0)
+
+    def test_log_returns(self, csv_path, capsys):
+        assert main(["transform", str(csv_path), "a", "--method", "log_returns"]) == 0
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert lines[0] == "nan"
+        assert float(lines[1]) == pytest.approx(0.693147, rel=1e-5)
+
+    def test_bad_method_rejected(self, csv_path):
+        with pytest.raises(SystemExit):
+            main(["transform", str(csv_path), "a", "--method", "nope"])
+
+    def test_non_numeric_column_returns_1(self, csv_path, capsys):
+        assert main(["transform", str(csv_path), "name"]) == 1
+        assert "error" in capsys.readouterr().err
