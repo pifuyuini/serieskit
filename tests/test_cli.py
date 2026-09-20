@@ -98,6 +98,12 @@ class TestParser:
         with pytest.raises(SystemExit):
             main([])
 
+    def test_version(self, capsys):
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--version"])
+        assert exc_info.value.code == 0
+        assert "kimi-space 0.1.0" in capsys.readouterr().out
+
 
 class TestOutliers:
     @pytest.fixture

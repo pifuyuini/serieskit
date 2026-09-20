@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
+from kimi_space import __version__
 from kimi_space.io import load_csv, numeric_summary
 from kimi_space.outliers import iqr_outliers, zscore_outliers
 from kimi_space.plotting import (
@@ -26,6 +27,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="kimi-space",
         description="轻量数据分析工具集：CSV 摘要与快速可视化",
+    )
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
