@@ -43,6 +43,9 @@ jobs:
         with:
           components: clippy, rustfmt
 
+      - name: Cache cargo artifacts
+        uses: Swatinem/rust-cache@v2
+
       - name: Format
         run: cargo fmt --check
 
