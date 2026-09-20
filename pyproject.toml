@@ -31,8 +31,8 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-q"
+testpaths = ["tests", "src/kimi_space"]
+addopts = "-q --doctest-modules"
 
 [tool.mypy]
 mypy_path = "src"

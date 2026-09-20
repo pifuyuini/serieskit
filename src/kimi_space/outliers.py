@@ -37,7 +37,11 @@ def zscore_mask(
 
 
 def iqr_outliers(values: Iterable[float], *, k: float = 1.5) -> npt.NDArray[np.float64]:
-    """返回 IQR 栅栏法判定为异常的值。"""
+    """返回 IQR 栅栏法判定为异常的值。
+
+    >>> iqr_outliers([1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0])
+    array([100.])
+    """
     arr = np.asarray(list(values), dtype=float).ravel()
     return arr[~iqr_mask(arr, k=k)]
 

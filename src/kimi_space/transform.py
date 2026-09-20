@@ -15,7 +15,11 @@ def minmax_normalize(
     *,
     feature_range: tuple[float, float] = (0.0, 1.0),
 ) -> np.ndarray:
-    """最小-最大归一化；常数序列映射到区间中点。"""
+    """最小-最大归一化；常数序列映射到区间中点。
+
+    >>> minmax_normalize([10, 20, 30])
+    array([0. , 0.5, 1. ])
+    """
     lo, hi = feature_range
     if not lo < hi:
         msg = f"feature_range 下界必须小于上界，收到 {feature_range}"

@@ -51,7 +51,14 @@ def _as_clean_array(values: Iterable[float]) -> np.ndarray:
 
 
 def summarize(values: Iterable[float]) -> SummaryStats:
-    """计算描述性统计摘要；NaN 会被剔除，空输入抛出 ValueError。"""
+    """计算描述性统计摘要；NaN 会被剔除，空输入抛出 ValueError。
+
+    >>> s = summarize([1, 2, 3, 4, 5])
+    >>> s.mean, s.median, s.count
+    (3.0, 3.0, 5)
+    >>> summarize([1.0, float("nan"), 3.0]).count
+    2
+    """
     arr = _as_clean_array(values)
     if arr.size == 0:
         msg = "values 为空（或全部为 NaN）"
@@ -72,7 +79,11 @@ def summarize(values: Iterable[float]) -> SummaryStats:
 
 
 def moving_average(values: Iterable[float], window: int) -> np.ndarray:
-    """等权滑动平均，返回长度为 len(values) - window + 1 的数组。"""
+    """等权滑动平均，返回长度为 len(values) - window + 1 的数组。
+
+    >>> moving_average([1, 2, 3, 4], 2)
+    array([1.5, 2.5, 3.5])
+    """
     if window < 1:
         msg = f"window 必须 >= 1，收到 {window}"
         raise ValueError(msg)
@@ -85,7 +96,11 @@ def moving_average(values: Iterable[float], window: int) -> np.ndarray:
 
 
 def zscores(values: Iterable[float]) -> np.ndarray:
-    """基于样本标准差的标准化；常数序列返回全零。"""
+    """基于样本标准差的标准化；常数序列返回全零。
+
+    >>> zscores([7, 7, 7])
+    array([0., 0., 0.])
+    """
     arr = np.asarray(list(values), dtype=float).ravel()
     if arr.size == 0:
         msg = "values 为空"
