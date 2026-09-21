@@ -6,3 +6,10 @@ description = "kimi-space Rust 数值内核"
 license = "MIT"
 
 [dependencies]
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[[bench]]
+name = "kernels"
+harness = false
