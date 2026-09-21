@@ -21,11 +21,19 @@ if TYPE_CHECKING:
 
 
 def apply_style() -> None:
-    """应用统一的图表风格（简洁网格、隐藏上/右边框）。"""
+    """应用统一的图表风格（简洁网格、隐藏上/右边框、CJK 字体回退）。"""
     plt.rcParams.update(
         {
             "figure.figsize": (8, 4.5),
             "figure.dpi": 100,
+            "font.sans-serif": [
+                "PingFang SC",
+                "Hiragino Sans GB",
+                "Noto Sans CJK SC",
+                "Microsoft YaHei",
+                "DejaVu Sans",
+            ],
+            "axes.unicode_minus": False,
             "axes.grid": True,
             "grid.alpha": 0.3,
             "axes.spines.top": False,

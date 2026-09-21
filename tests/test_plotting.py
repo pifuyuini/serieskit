@@ -27,6 +27,18 @@ class TestApplyStyle:
         assert plt.rcParams["axes.spines.top"] is False
         assert plt.rcParams["axes.grid"] is True
 
+    def test_cjk_font_fallback_and_minus(self):
+        apply_style()
+        fonts = plt.rcParams["font.sans-serif"]
+        assert fonts[0] == "PingFang SC"
+        assert "DejaVu Sans" in fonts
+        assert plt.rcParams["axes.unicode_minus"] is False
+
+    def test_cjk_title_renders(self):
+        apply_style()
+        ax = plot_series([1.0, 2.0, 3.0], title="价格走势")
+        assert ax.get_title() == "价格走势"
+
 
 class TestPlotSeries:
     def test_returns_axes_with_one_line(self):
