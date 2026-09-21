@@ -2,6 +2,16 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.12.0] - 2026-09-21
+
+### 新增
+
+- CLI `report --by` 分组统计表（summary_by.csv）
+
+### 性能
+
+- Python MAD 路径复用 _median_and_mad（summarize/mad_mask/robust_zscores 不再重复求中位数）
+
 ## [0.11.0] - 2026-09-21
 
 ### 新增
