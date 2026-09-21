@@ -86,9 +86,11 @@ ax.figure.savefig("price.png")
 ## 示例
 
 ```bash
-.venv/bin/python examples/demo_report.py   # 生成合成数据、统计摘要与三张图表
+.venv/bin/python examples/demo_report.py   # 生成合成数据、统计摘要与五张图表
 .venv/bin/python examples/benchmark.py     # Python 与 Rust 内核吞吐对照
 ```
+
+完整 API 清单见 [docs/api.md](docs/api.md)。
 
 ## 开发
 
