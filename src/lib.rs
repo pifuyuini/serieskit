@@ -182,6 +182,14 @@ fn percentile_sorted(sorted: &[f64], q: f64) -> f64 {
     sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo as f64)
 }
 
+/// 由已排序切片计算 (中位数, MAD)。
+fn median_and_mad(sorted: &[f64]) -> (f64, f64) {
+    let med = percentile_sorted(sorted, 50.0);
+    let mut dev: Vec<f64> = sorted.iter().map(|v| (v - med).abs()).collect();
+    dev.sort_by(f64::total_cmp);
+    (med, percentile_sorted(&dev, 50.0))
+}
+
 /// 中位数绝对偏差（MAD）：median(|x - median(x)|)，稳健的离散度度量；
 /// 空输入返回 None。
 ///
@@ -194,10 +202,7 @@ pub fn median_abs_deviation(values: &[f64]) -> Option<f64> {
     }
     let mut sorted = values.to_vec();
     sorted.sort_by(f64::total_cmp);
-    let med = percentile_sorted(&sorted, 50.0);
-    let mut dev: Vec<f64> = values.iter().map(|v| (v - med).abs()).collect();
-    dev.sort_by(f64::total_cmp);
-    Some(percentile_sorted(&dev, 50.0))
+    Some(median_and_mad(&sorted).1)
 }
 
 /// MAD 修正 z-score 法（Iglewicz–Hoaglin）：|0.6745·(x-median)/MAD| <= threshold
@@ -213,8 +218,7 @@ pub fn mad_mask(values: &[f64], threshold: f64) -> Option<Vec<bool>> {
     }
     let mut sorted = values.to_vec();
     sorted.sort_by(f64::total_cmp);
-    let med = percentile_sorted(&sorted, 50.0);
-    let mad = median_abs_deviation(values)?;
+    let (med, mad) = median_and_mad(&sorted);
     if mad == 0.0 {
         return Some(values.iter().map(|v| *v == med).collect());
     }
@@ -233,12 +237,12 @@ pub fn mad_mask(values: &[f64], threshold: f64) -> Option<Vec<bool>> {
 /// assert!((r[4] - 65.4265).abs() < 1e-12);
 /// ```
 pub fn robust_zscores(values: &[f64]) -> Vec<f64> {
-    let Some(mad) = median_abs_deviation(values) else {
+    if values.is_empty() {
         return Vec::new();
-    };
+    }
     let mut sorted = values.to_vec();
     sorted.sort_by(f64::total_cmp);
-    let med = percentile_sorted(&sorted, 50.0);
+    let (med, mad) = median_and_mad(&sorted);
     if mad == 0.0 {
         return vec![0.0; values.len()];
     }
