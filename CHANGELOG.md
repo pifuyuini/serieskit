@@ -2,6 +2,17 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.7.0] - 2026-09-21
+
+### 新增
+
+- `plot_histogram` 支持 `kde=True` 核密度估计曲线；CLI `hist --kde`
+- Rust criterion 基准（`cargo bench --bench kernels`，覆盖四个内核函数）
+
+### 修复
+
+- zscores 性质测试排除病态条件输入（float64 精度边界）
+
 ## [0.6.1] - 2026-09-21
 
 ### 新增
