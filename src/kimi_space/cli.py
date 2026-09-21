@@ -15,6 +15,7 @@ from kimi_space.io import load_csv, numeric_summary, numeric_summary_by
 from kimi_space.outliers import iqr_mask, zscore_mask
 from kimi_space.plotting import (
     apply_style,
+    plot_bands,
     plot_box,
     plot_correlation_heatmap,
     plot_histogram,
@@ -64,6 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_series.add_argument("column", help="数值列名")
     p_series.add_argument("--x", help="作为横轴的列名（默认行号）")
     p_series.add_argument("--smooth", type=int, help="滑动平均窗口，如 10")
+    p_series.add_argument("--bands", type=int, help="波动带窗口（MA±2σ），如 20")
     p_series.add_argument("--output", help="输出图片路径（默认 <列名>_series.png）")
     p_series.set_defaults(func=_cmd_series)
 
@@ -160,12 +162,15 @@ def _cmd_series(args: argparse.Namespace) -> int:
     apply_style()
     output = args.output or f"{args.column}_series.png"
     x = df[args.x] if args.x else None
-    ax = plot_series(
-        df[args.column],
-        x=x,
-        smooth_window=args.smooth,
-        title=args.column,
-    )
+    if args.bands:
+        ax = plot_bands(df[args.column], window=args.bands, x=x, title=args.column)
+    else:
+        ax = plot_series(
+            df[args.column],
+            x=x,
+            smooth_window=args.smooth,
+            title=args.column,
+        )
     _save(ax, output)
     return 0
 

@@ -100,6 +100,22 @@ class TestSeries:
         assert code == 0
         assert out.exists()
 
+    def test_bands_option(self, csv_path, tmp_path):
+        out = tmp_path / "band.png"
+        code = main(
+            ["series", str(csv_path), "a", "--bands", "2", "--output", str(out)]
+        )
+        assert code == 0
+        assert out.exists() and out.stat().st_size > 0
+
+    def test_bands_bad_window_returns_1(self, csv_path, capsys, tmp_path):
+        out = tmp_path / "band.png"
+        code = main(
+            ["series", str(csv_path), "a", "--bands", "9", "--output", str(out)]
+        )
+        assert code == 1
+        assert "error" in capsys.readouterr().err
+
 
 class TestHeatmap:
     def test_saves_output(self, csv_path, tmp_path):
