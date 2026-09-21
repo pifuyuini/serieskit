@@ -160,6 +160,27 @@ pub fn moving_std(values: &[f64], window: usize) -> Option<Vec<f64>> {
     )
 }
 
+/// 滑动窗口中位数；window 为 0 或大于数据长度时返回 None。
+///
+/// ```
+/// assert_eq!(kimi_space::moving_median(&[1.0, 100.0, 3.0], 2).unwrap(), vec![50.5, 51.5]);
+/// ```
+pub fn moving_median(values: &[f64], window: usize) -> Option<Vec<f64>> {
+    if window == 0 || window > values.len() {
+        return None;
+    }
+    Some(
+        values
+            .windows(window)
+            .map(|w| {
+                let mut sorted = w.to_vec();
+                sorted.sort_by(f64::total_cmp);
+                percentile_sorted(&sorted, 50.0)
+            })
+            .collect(),
+    )
+}
+
 /// 线性插值分位数（与 numpy 默认方法一致）；空输入或 q 不在 [0, 100] 返回 None。
 ///
 /// ```

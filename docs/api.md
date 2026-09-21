@@ -9,6 +9,7 @@
 | `summarize(values) -> SummaryStats` | 描述性统计摘要（count/mean/std/min/q25/median/q75/max/skew/kurtosis/mad），NaN 自动剔除 |
 | `moving_average(values, window) -> ndarray` | 等权滑动平均，长度 n-window+1 |
 | `moving_std(values, window) -> ndarray` | 滑动窗口样本标准差（ddof=1，window>=2） |
+| `moving_median(values, window) -> ndarray` | 滑动窗口中位数（稳健滑动统计） |
 | `zscores(values) -> ndarray` | 样本标准差标准化；常数序列返回全零 |
 | `weighted_mean(values, weights) -> float` | 加权平均（权重非负且和为正） |
 | `geometric_mean(values) -> float` | 几何平均（要求全正） |
@@ -64,7 +65,7 @@
 
 内核函数（均返回 `Option`/`Vec`，不 panic）：
 `mean`、`sample_std`、`weighted_mean`、`geometric_mean`、`harmonic_mean`、
-`moving_average`、`moving_std`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`、
+`moving_average`、`moving_std`、`moving_median`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`、
 `iqr_mask`、`mad_mask`、`minmax_normalize`、`pct_change`、`log_returns`、`autocorr`、`median_abs_deviation`、
 `robust_zscores`、`diff`。
 
@@ -78,6 +79,7 @@
 | `zscores` / `robust-zscores` / `pct-change` / `log-returns` / `diff` | 逐行变换结果 |
 | `moving-average <w>` | 逐行滑动平均 |
 | `moving-std <w>` | 逐行滑动样本标准差 |
+| `moving-median <w>` | 逐行滑动中位数 |
 | `autocorr [lag]` | 单个自相关系数 |
 | `percentile <q>` | 单个分位数（q ∈ [0, 100]） |
 | `outliers [k]` | 逐行异常值（计数在 stderr） |

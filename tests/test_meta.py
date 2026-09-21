@@ -67,6 +67,7 @@ def test_api_md_lists_all_cli_subcommands():
         "log-returns",
         "moving-average",
         "moving-std",
+        "moving-median",
         "autocorr",
         "percentile",
         "outliers",

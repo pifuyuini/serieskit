@@ -327,3 +327,17 @@ fn diff_subcommand() {
     let rest: Vec<f64> = lines[1..].iter().map(|s| s.parse().unwrap()).collect();
     assert_eq!(rest, vec![1.0, 2.0, 4.0]);
 }
+
+#[test]
+fn moving_median_subcommand() {
+    let (ok, stdout, _) = run_bin(&["moving-median", "2"], "1 100 3");
+    assert!(ok);
+    assert_eq!(rows(&stdout), vec![50.5, 51.5]);
+}
+
+#[test]
+fn moving_median_requires_window() {
+    let (ok, _, stderr) = run_bin(&["moving-median"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("需要 <window>"));
+}

@@ -19,6 +19,7 @@ from kimi_space.stats import (
     harmonic_mean,
     median_abs_deviation,
     moving_average,
+    moving_median,
     moving_std,
     zscores,
 )
@@ -203,3 +204,9 @@ class TestRustParity:
         data = rng.normal(size=300).tolist()
         rust = rust_rows(rust_bin, ["diff"], data)
         assert_rows_close(rust, diff(data).tolist())
+
+    def test_moving_median_parity(self, rust_bin):
+        rng = np.random.default_rng(20)
+        data = rng.normal(size=300).tolist()
+        rust = rust_rows(rust_bin, ["moving-median", "6"], data)
+        assert_rows_close(rust, moving_median(data, 6).tolist())
