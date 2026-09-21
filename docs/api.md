@@ -8,6 +8,7 @@
 | --- | --- |
 | `summarize(values) -> SummaryStats` | 描述性统计摘要（count/mean/std/min/q25/median/q75/max/skew/kurtosis），NaN 自动剔除 |
 | `moving_average(values, window) -> ndarray` | 等权滑动平均，长度 n-window+1 |
+| `moving_std(values, window) -> ndarray` | 滑动窗口样本标准差（ddof=1，window>=2） |
 | `zscores(values) -> ndarray` | 样本标准差标准化；常数序列返回全零 |
 | `weighted_mean(values, weights) -> float` | 加权平均（权重非负且和为正） |
 | `geometric_mean(values) -> float` | 几何平均（要求全正） |
@@ -50,13 +51,14 @@
 | `plot_histogram(values, *, bins=20, ...)` | 直方图 + 均值/中位数参考线 |
 | `plot_correlation_heatmap(df, *, columns=None, ...)` | 相关系数热力图（格内标注） |
 | `plot_box(df, *, columns=None, ...)` | 多列箱线图 |
+| `plot_bands(values, *, window=20, num_std=2.0, ...)` | 滑动均值 ± kσ 波动带 |
 | `plot_outliers(values, *, k=1.5, mask=None, ...)` | 折线 + 异常值散点标注 |
 
 ## Rust crate `kimi-space`
 
 内核函数（均返回 `Option`/`Vec`，不 panic）：
 `mean`、`sample_std`、`weighted_mean`、`geometric_mean`、`harmonic_mean`、
-`moving_average`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`、
+`moving_average`、`moving_std`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`、
 `iqr_mask`、`minmax_normalize`、`pct_change`、`log_returns`、`autocorr`。
 
 二进制 `kimi-space-rs`（stdin 读数，stdout 输出）：
@@ -67,9 +69,11 @@
 | `means` | arithmetic/geometric/harmonic 三行 |
 | `zscores` / `pct-change` / `log-returns` | 逐行变换结果 |
 | `moving-average <w>` | 逐行滑动平均 |
+| `moving-std <w>` | 逐行滑动样本标准差 |
 | `autocorr [lag]` | 单个自相关系数 |
 | `outliers [k]` | 逐行异常值（计数在 stderr） |
 | `minmax <lo> <hi>` | 逐行归一化结果 |
 | `-h` / `--help` | 用法说明 |
+| `-V` / `--version` | 版本号 |
 
 Python 与 Rust 的数值一致性由 `tests/test_parity.py` 保证（随机数据，rel 1e-9~1e-12）。

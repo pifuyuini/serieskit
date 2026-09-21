@@ -4,6 +4,8 @@ import re
 import tomllib
 from pathlib import Path
 
+import pytest
+
 import kimi_space
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -28,3 +30,42 @@ def test_changelog_documents_current_version():
 
 def test_license_exists():
     assert (ROOT / "LICENSE").exists()
+
+
+def test_readme_python_cli_subcommands_exist():
+    from kimi_space.cli import main
+
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    cmds = set(re.findall(r"kimi-space (\w+)", text))
+    assert {
+        "summary",
+        "hist",
+        "series",
+        "heatmap",
+        "box",
+        "corr",
+        "outliers",
+        "transform",
+        "autocorr",
+    } <= cmds
+    for cmd in cmds:
+        with pytest.raises(SystemExit) as exc_info:
+            main([cmd, "--help"])
+        assert exc_info.value.code == 0
+
+
+def test_api_md_lists_all_cli_subcommands():
+    api = (ROOT / "docs" / "api.md").read_text(encoding="utf-8")
+    for cmd in [
+        "summary",
+        "means",
+        "zscores",
+        "pct-change",
+        "log-returns",
+        "moving-average",
+        "moving-std",
+        "autocorr",
+        "outliers",
+        "minmax",
+    ]:
+        assert cmd in api, f"api.md 缺少 Rust 子命令 {cmd}"
