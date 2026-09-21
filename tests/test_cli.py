@@ -339,6 +339,45 @@ class TestTransform:
         assert lines[0] == "nan"
         assert float(lines[1]) == pytest.approx(1.0)
 
+    def test_moving_average_method(self, csv_path, capsys):
+        code = main(
+            [
+                "transform",
+                str(csv_path),
+                "a",
+                "--method",
+                "moving_average",
+                "--window",
+                "2",
+            ]
+        )
+        assert code == 0
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert [float(x) for x in lines] == [pytest.approx(1.5), pytest.approx(2.5)]
+
+    def test_moving_median_method(self, csv_path, capsys):
+        code = main(
+            [
+                "transform",
+                str(csv_path),
+                "a",
+                "--method",
+                "moving_median",
+                "--window",
+                "2",
+            ]
+        )
+        assert code == 0
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert len(lines) == 2
+
+    def test_moving_std_bad_window_returns_1(self, csv_path, capsys):
+        code = main(
+            ["transform", str(csv_path), "a", "--method", "moving_std", "--window", "9"]
+        )
+        assert code == 1
+        assert "error" in capsys.readouterr().err
+
     def test_non_numeric_column_returns_1(self, csv_path, capsys):
         assert main(["transform", str(csv_path), "name"]) == 1
         assert "error" in capsys.readouterr().err

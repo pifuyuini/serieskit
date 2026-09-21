@@ -26,7 +26,14 @@ from kimi_space.plotting import (
     plot_robust_bands,
     plot_series,
 )
-from kimi_space.stats import autocorr, median_abs_deviation, zscores
+from kimi_space.stats import (
+    autocorr,
+    median_abs_deviation,
+    moving_average,
+    moving_median,
+    moving_std,
+    zscores,
+)
 from kimi_space.transform import (
     diff,
     log_returns,
@@ -138,9 +145,15 @@ def build_parser() -> argparse.ArgumentParser:
             "zscore",
             "robust_zscore",
             "diff",
+            "moving_average",
+            "moving_std",
+            "moving_median",
         ],
         default="zscore",
         help="变换方法（默认 zscore）",
+    )
+    p_trans.add_argument(
+        "--window", type=int, default=10, help="滑动窗口（moving_* 方法，默认 10）"
     )
     p_trans.set_defaults(func=_cmd_transform)
 
@@ -301,6 +314,12 @@ def _cmd_transform(args: argparse.Namespace) -> int:
         result = robust_zscores(series)
     elif args.method == "diff":
         result = diff(series)
+    elif args.method == "moving_average":
+        result = moving_average(series, args.window)
+    elif args.method == "moving_std":
+        result = moving_std(series, args.window)
+    elif args.method == "moving_median":
+        result = moving_median(series, args.window)
     else:
         result = zscores(series)
     for value in result:
