@@ -24,7 +24,7 @@ from kimi_space.plotting import (
     plot_outliers,
     plot_series,
 )
-from kimi_space.stats import autocorr, zscores
+from kimi_space.stats import autocorr, median_abs_deviation, zscores
 from kimi_space.transform import log_returns, minmax_normalize, pct_change
 
 if TYPE_CHECKING:
@@ -134,6 +134,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_pct.add_argument("column", help="数值列名")
     p_pct.add_argument("--q", type=float, default=50.0, help="分位点 0-100（默认 50）")
     p_pct.set_defaults(func=_cmd_percentile)
+
+    p_mad = sub.add_parser("mad", help="输出指定数值列的中位数绝对偏差（MAD）")
+    p_mad.add_argument("csv", help="CSV 文件路径")
+    p_mad.add_argument("column", help="数值列名")
+    p_mad.set_defaults(func=_cmd_mad)
 
     p_rep = sub.add_parser("report", help="一键生成报告目录（统计表 + 全部图表）")
     p_rep.add_argument("csv", help="CSV 文件路径")
@@ -268,6 +273,12 @@ def _cmd_percentile(args: argparse.Namespace) -> int:
         msg = f"q 必须在 [0, 100]，收到 {args.q}"
         raise ValueError(msg)
     print(float(np.percentile(df[args.column].to_numpy(dtype=float), args.q)))
+    return 0
+
+
+def _cmd_mad(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv, numeric_columns=[args.column])
+    print(median_abs_deviation(df[args.column]))
     return 0
 
 

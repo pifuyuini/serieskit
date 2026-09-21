@@ -339,3 +339,13 @@ class TestReport:
         csv.write_text("s\na\nb\n", encoding="utf-8")
         assert main(["report", str(csv), "--outdir", str(tmp_path / "r")]) == 1
         assert "error" in capsys.readouterr().err
+
+
+class TestMad:
+    def test_value(self, csv_path, capsys):
+        assert main(["mad", str(csv_path), "a"]) == 0
+        assert float(capsys.readouterr().out.strip()) == pytest.approx(1.0)
+
+    def test_non_numeric_column_returns_1(self, csv_path, capsys):
+        assert main(["mad", str(csv_path), "name"]) == 1
+        assert "error" in capsys.readouterr().err

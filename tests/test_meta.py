@@ -47,6 +47,9 @@ def test_readme_python_cli_subcommands_exist():
         "outliers",
         "transform",
         "autocorr",
+        "percentile",
+        "mad",
+        "report",
     } <= cmds
     for cmd in cmds:
         with pytest.raises(SystemExit) as exc_info:
