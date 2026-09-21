@@ -313,3 +313,29 @@ class TestPercentile:
     def test_out_of_range_returns_1(self, csv_path, capsys):
         assert main(["percentile", str(csv_path), "a", "--q", "101"]) == 1
         assert "error" in capsys.readouterr().err
+
+
+class TestReport:
+    def test_generates_all_artifacts(self, csv_path, tmp_path, capsys):
+        outdir = tmp_path / "rep"
+        assert main(["report", str(csv_path), "--outdir", str(outdir)]) == 0
+        assert (outdir / "summary.csv").exists()
+        assert (outdir / "a_hist.png").exists()
+        assert (outdir / "b_hist.png").exists()
+        assert (outdir / "heatmap.png").exists()
+        assert (outdir / "box.png").exists()
+        assert "报告已生成" in capsys.readouterr().out
+
+    def test_single_numeric_column_skips_multi_plots(self, tmp_path):
+        csv = tmp_path / "one.csv"
+        csv.write_text("x,s\n1,a\n2,b\n", encoding="utf-8")
+        outdir = tmp_path / "rep1"
+        assert main(["report", str(csv), "--outdir", str(outdir)]) == 0
+        assert (outdir / "x_hist.png").exists()
+        assert not (outdir / "heatmap.png").exists()
+
+    def test_no_numeric_column_returns_1(self, tmp_path, capsys):
+        csv = tmp_path / "bad.csv"
+        csv.write_text("s\na\nb\n", encoding="utf-8")
+        assert main(["report", str(csv), "--outdir", str(tmp_path / "r")]) == 1
+        assert "error" in capsys.readouterr().err

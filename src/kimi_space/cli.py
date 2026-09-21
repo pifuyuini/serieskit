@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -134,6 +135,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_pct.add_argument("--q", type=float, default=50.0, help="分位点 0-100（默认 50）")
     p_pct.set_defaults(func=_cmd_percentile)
 
+    p_rep = sub.add_parser("report", help="一键生成报告目录（统计表 + 全部图表）")
+    p_rep.add_argument("csv", help="CSV 文件路径")
+    p_rep.add_argument("--outdir", default="report", help="输出目录（默认 report/）")
+    p_rep.set_defaults(func=_cmd_report)
+
     return parser
 
 
@@ -262,6 +268,25 @@ def _cmd_percentile(args: argparse.Namespace) -> int:
         msg = f"q 必须在 [0, 100]，收到 {args.q}"
         raise ValueError(msg)
     print(float(np.percentile(df[args.column].to_numpy(dtype=float), args.q)))
+    return 0
+
+
+def _cmd_report(args: argparse.Namespace) -> int:
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    df = load_csv(args.csv)
+    numeric_summary(df).to_csv(outdir / "summary.csv")
+    numeric = df.select_dtypes(include="number")
+    apply_style()
+    for col in numeric.columns:
+        _save(
+            plot_histogram(numeric[col], title=str(col)),
+            str(outdir / f"{col}_hist.png"),
+        )
+    if len(numeric.columns) > 1:
+        _save(plot_correlation_heatmap(df), str(outdir / "heatmap.png"))
+        _save(plot_box(df), str(outdir / "box.png"))
+    print(f"报告已生成: {outdir}/")
     return 0
 
 
