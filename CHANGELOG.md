@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.20.0] - 2026-09-21
+
+### 新增
+
+- `plot_quantile_bands` 滑动分位数带图（默认 P10–P90，无分布假设）
+
 ## [0.19.0] - 2026-09-21
 
 ### 新增

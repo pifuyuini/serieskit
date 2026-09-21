@@ -1,6 +1,6 @@
 [package]
 name = "kimi-space"
-version = "0.19.0"
+version = "0.20.0"
 edition = "2024"
 description = "kimi-space Rust 数值内核"
 license = "MIT"
