@@ -116,6 +116,23 @@ class TestSeries:
         assert code == 1
         assert "error" in capsys.readouterr().err
 
+    def test_smooth_and_bands_are_exclusive(self, csv_path, tmp_path):
+        out = tmp_path / "x.png"
+        with pytest.raises(SystemExit):
+            main(
+                [
+                    "series",
+                    str(csv_path),
+                    "a",
+                    "--smooth",
+                    "2",
+                    "--bands",
+                    "2",
+                    "--output",
+                    str(out),
+                ]
+            )
+
 
 class TestHeatmap:
     def test_saves_output(self, csv_path, tmp_path):

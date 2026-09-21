@@ -65,8 +65,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_series.add_argument("csv", help="CSV 文件路径")
     p_series.add_argument("column", help="数值列名")
     p_series.add_argument("--x", help="作为横轴的列名（默认行号）")
-    p_series.add_argument("--smooth", type=int, help="滑动平均窗口，如 10")
-    p_series.add_argument("--bands", type=int, help="波动带窗口（MA±2σ），如 20")
+    g_series = p_series.add_mutually_exclusive_group()
+    g_series.add_argument("--smooth", type=int, help="滑动平均窗口，如 10")
+    g_series.add_argument("--bands", type=int, help="波动带窗口（MA±2σ），如 20")
     p_series.add_argument("--output", help="输出图片路径（默认 <列名>_series.png）")
     p_series.set_defaults(func=_cmd_series)
 
