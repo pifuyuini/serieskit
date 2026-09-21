@@ -1,6 +1,6 @@
 [project]
 name = "kimi-space"
-version = "0.13.0"
+version = "0.14.0"
 description = "轻量数据分析工具集：统计、绘图与 CSV 工作流"
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.14.0] - 2026-09-21
+
+### 新增
+
+- `diff` 一阶差分（双侧）；CLI `transform --method diff`；Rust `diff` 子命令
+
 ## [0.13.0] - 2026-09-21
 
 ### 新增
