@@ -103,3 +103,28 @@ The user has granted standing authorization to use subagents, delegation, and pa
 1. We are not writing a cybersecurity research paper. Validation is permitted, but excessive defensive programming is strictly, strictly, strictly prohibited.
 2. Do not generate hashes or SHA-256 checksums.
 3. Do not implement defensive logic for duplicate events that are virtually impossible.
+
+---
+
+## Project Status Snapshot (as of v0.5.0, 2026-09-21)
+
+This repo is a dual-language data toolkit built from an empty scaffold:
+
+- **Python package `kimi_space`** (src layout, installable via `uv sync`):
+  `stats` / `io` / `plotting` / `outliers` / `transform` modules and a
+  `kimi-space` CLI with subcommands `summary` / `hist` / `series` / `heatmap` /
+  `box` / `corr` / `outliers` / `transform` / `autocorr`.
+- **Rust crate** (same repo): numeric kernel `src/lib.rs` mirroring the Python
+  statistics semantics, plus the `kimi-space-rs` stdin binary (`src/bin/`).
+- Quality gates that must stay green: `.venv/bin/pytest` (coverage 100%,
+  CI floor 95%), `.venv/bin/ruff check .`, `.venv/bin/ruff format --check .`,
+  `.venv/bin/mypy src/kimi_space` (strict), `cargo test`,
+  `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check`,
+  `pre-commit run --all-files`.
+- Cross-language numerical parity is enforced by `tests/test_parity.py`
+  (skipped when cargo is unavailable).
+- Version numbers live in four places kept in lockstep by
+  `tests/test_meta.py`: `pyproject.toml`, `Cargo.toml`,
+  `src/kimi_space/__init__.py`, `CHANGELOG.md` (top heading).
+- Releases are tagged `vX.Y.Z`; every feature lands with tests, docs
+  (README / docs/api.md), and a CHANGELOG entry.
