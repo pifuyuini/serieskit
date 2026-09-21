@@ -37,4 +37,14 @@ fn main() {
         dt1.as_secs_f64() * 1e3,
         s.mean
     );
+
+    let t2 = Instant::now();
+    let ms = kimi_space::moving_std(&data, window).unwrap();
+    let dt2 = t2.elapsed();
+    println!(
+        "rust moving_std: n={n} window={window} -> {} points in {:.3} ms (checksum {:.6})",
+        ms.len(),
+        dt2.as_secs_f64() * 1e3,
+        ms.iter().sum::<f64>()
+    );
 }

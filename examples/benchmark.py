@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from kimi_space.stats import moving_average, summarize
+from kimi_space.stats import moving_average, moving_std, summarize
 
 ROOT = Path(__file__).resolve().parent.parent
 N = 200_000
@@ -33,6 +33,14 @@ def main() -> None:
     s = summarize(data)
     t3 = time.perf_counter()
     print(f"python summarize: n={N} in {(t3 - t2) * 1e3:.3f} ms (mean {s.mean:.6f})")
+
+    t4 = time.perf_counter()
+    ms = moving_std(data, WINDOW)
+    t5 = time.perf_counter()
+    print(
+        f"python moving_std: n={N} window={WINDOW} -> {ms.size} points "
+        f"in {(t5 - t4) * 1e3:.3f} ms (checksum {float(np.sum(ms)):.6f})"
+    )
 
     proc = subprocess.run(
         ["cargo", "run", "--release", "--quiet", "--example", "bench"],

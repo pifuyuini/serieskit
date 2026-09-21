@@ -41,5 +41,7 @@ def test_benchmark_runs():
         check=True,
     )
     assert "python moving_average" in proc.stdout
+    assert "python moving_std" in proc.stdout
     assert "rust moving_average" in proc.stdout
     assert "rust summarize" in proc.stdout
+    assert "rust moving_std" in proc.stdout
