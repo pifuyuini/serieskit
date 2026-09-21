@@ -40,22 +40,31 @@ cargo test               # 运行 Rust 测试
 ```bash
 kimi-space summary data.csv            # 输出 CSV 各数值列的描述性统计
 kimi-space summary data.csv --json     # 以 JSON 格式输出
+kimi-space summary data.csv --output summary.csv   # 统计表落盘
 kimi-space hist data.csv price         # 直方图保存为 price_hist.png
 kimi-space series data.csv price --smooth 10   # 折线图（叠加 10 点滑动平均）
+kimi-space series data.csv price --x date      # 自定义横轴列
 kimi-space heatmap data.csv            # 相关系数热力图保存为 heatmap.png
+kimi-space box data.csv                # 多列箱线图保存为 box.png
+kimi-space corr data.csv --method spearman     # 文本相关系数矩阵
 kimi-space outliers data.csv price --method iqr   # 逐行输出异常值
+kimi-space outliers data.csv price --plot out.png # 检出并保存标注图
+kimi-space transform data.csv price --method pct_change  # 逐行输出变换结果
 cat data.csv | kimi-space summary -    # 路径为 - 时从标准输入读取（全部子命令通用）
 ```
 
 ## Rust 数值内核
 
 Rust crate 提供与 Python 统计模块语义一致的数值内核（`mean`、`sample_std`、
-`moving_average`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`），
-以及一个 Unix 风格的 stdin 摘要工具：
+`weighted_mean`、`geometric_mean`、`harmonic_mean`、`moving_average`、`zscores`、
+`percentile`、`skew`、`kurtosis`、`summarize`、`iqr_mask`、`minmax_normalize`、
+`pct_change`、`log_returns`），以及一个 Unix 风格的 stdin 工具：
 
 ```bash
-echo "1 2 3 4" | cargo run --bin kimi-space-rs    # 输出 key=value 形式的描述性统计
-cargo test                                         # 运行全部 Rust 测试
+echo "1 2 3 4" | cargo run --bin kimi-space-rs                # key=value 描述性统计
+echo "1 2 3 4" | cargo run --bin kimi-space-rs -- means       # 三种均值
+echo "1 2 3 4" | cargo run --bin kimi-space-rs -- moving-average 2
+cargo test                                                     # 运行全部 Rust 测试
 ```
 
 ## Python 库用法
