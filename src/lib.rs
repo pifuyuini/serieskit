@@ -226,6 +226,25 @@ pub fn mad_mask(values: &[f64], threshold: f64) -> Option<Vec<bool>> {
     )
 }
 
+/// 稳健 z-score：0.6745·(x-median)/MAD；MAD 为 0 或空输入时返回全零/空向量。
+///
+/// ```
+/// let r = kimi_space::robust_zscores(&[1.0, 2.0, 3.0, 4.0, 100.0]);
+/// assert!((r[4] - 65.4265).abs() < 1e-12);
+/// ```
+pub fn robust_zscores(values: &[f64]) -> Vec<f64> {
+    let Some(mad) = median_abs_deviation(values) else {
+        return Vec::new();
+    };
+    let mut sorted = values.to_vec();
+    sorted.sort_by(f64::total_cmp);
+    let med = percentile_sorted(&sorted, 50.0);
+    if mad == 0.0 {
+        return vec![0.0; values.len()];
+    }
+    values.iter().map(|v| 0.6745 * (v - med) / mad).collect()
+}
+
 /// IQR 栅栏法：返回布尔向量，true 表示落在 [Q1-k*IQR, Q3+k*IQR] 内的正常值；
 /// 空输入返回 None。
 ///

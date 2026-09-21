@@ -307,3 +307,12 @@ fn mad_outliers_bad_threshold_fails() {
     assert!(!ok);
     assert!(stderr.contains("无法解析阈值"));
 }
+
+#[test]
+fn robust_zscores_subcommand() {
+    let (ok, stdout, _) = run_bin(&["robust-zscores"], "1 2 3 4 100");
+    assert!(ok);
+    let r = rows(&stdout);
+    assert_eq!(r.len(), 5);
+    assert!((r[4] - 65.4265).abs() < 1e-9);
+}

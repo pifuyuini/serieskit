@@ -22,7 +22,12 @@ from kimi_space.stats import (
     moving_std,
     zscores,
 )
-from kimi_space.transform import log_returns, minmax_normalize, pct_change
+from kimi_space.transform import (
+    log_returns,
+    minmax_normalize,
+    pct_change,
+    robust_zscores,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 BIN = ROOT / "target" / "debug" / "kimi-space-rs"
@@ -185,3 +190,9 @@ class TestRustParity:
         rust = rust_rows(rust_bin, ["mad-outliers"], data)
         expected = mad_outliers(data).tolist()
         assert_rows_close(sorted(rust), sorted(expected))
+
+    def test_robust_zscores_parity(self, rust_bin):
+        rng = np.random.default_rng(18)
+        data = rng.normal(size=300).tolist() + [50.0]
+        rust = rust_rows(rust_bin, ["robust-zscores"], data)
+        assert_rows_close(rust, robust_zscores(data).tolist())

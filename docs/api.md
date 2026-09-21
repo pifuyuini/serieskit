@@ -63,7 +63,8 @@
 内核函数（均返回 `Option`/`Vec`，不 panic）：
 `mean`、`sample_std`、`weighted_mean`、`geometric_mean`、`harmonic_mean`、
 `moving_average`、`moving_std`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`、
-`iqr_mask`、`mad_mask`、`minmax_normalize`、`pct_change`、`log_returns`、`autocorr`、`median_abs_deviation`。
+`iqr_mask`、`mad_mask`、`minmax_normalize`、`pct_change`、`log_returns`、`autocorr`、`median_abs_deviation`、
+`robust_zscores`。
 
 二进制 `kimi-space-rs`（stdin 读数，stdout 输出）：
 
@@ -72,7 +73,7 @@
 | `summary`（默认） | key=value 描述性统计 |
 | `means` | arithmetic/geometric/harmonic 三行 |
 | `mad` | 中位数绝对偏差 |
-| `zscores` / `pct-change` / `log-returns` | 逐行变换结果 |
+| `zscores` / `robust-zscores` / `pct-change` / `log-returns` | 逐行变换结果 |
 | `moving-average <w>` | 逐行滑动平均 |
 | `moving-std <w>` | 逐行滑动样本标准差 |
 | `autocorr [lag]` | 单个自相关系数 |
