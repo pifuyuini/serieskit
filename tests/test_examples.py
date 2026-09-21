@@ -21,6 +21,7 @@ def test_demo_report_runs(tmp_path):
     for name in [
         "demo.csv",
         "series.png",
+        "bands.png",
         "hist.png",
         "heatmap.png",
         "outliers.png",

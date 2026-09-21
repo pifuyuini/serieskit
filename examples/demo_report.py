@@ -12,6 +12,7 @@ import pandas as pd
 from kimi_space.io import numeric_summary
 from kimi_space.plotting import (
     apply_style,
+    plot_bands,
     plot_box,
     plot_correlation_heatmap,
     plot_histogram,
@@ -54,6 +55,9 @@ def main() -> None:
     plot_series(
         df["price"], x=df["day"], title="price with MA10", smooth_window=10
     ).figure.savefig(out_dir / "series.png", bbox_inches="tight")
+    plot_bands(
+        df["price"], x=df["day"], window=20, title="价格波动带（MA20±2σ）"
+    ).figure.savefig(out_dir / "bands.png", bbox_inches="tight")
     plot_histogram(df["price"], title="price distribution").figure.savefig(
         out_dir / "hist.png", bbox_inches="tight"
     )
