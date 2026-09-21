@@ -2,6 +2,14 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.6.1] - 2026-09-21
+
+### 新增
+
+- Rust 内核 14 个公共函数的 doctest 文档示例（cargo test 执行）
+- tag 触发的 GitHub Release 流水线（Python sdist/wheel + Rust 二进制）
+- `scripts/bump_version.py` 发版脚本（四处版本号 + 双 lock 一键同步）
+
 ## [0.6.0] - 2026-09-21
 
 ### 新增
