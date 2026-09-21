@@ -11,7 +11,7 @@
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|robust-zscores|pct-change|log-returns|moving-average <w>|moving-std <w>|autocorr [lag]|percentile <q>|outliers [k]|mad-outliers [t]|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|robust-zscores|pct-change|diff|log-returns|moving-average <w>|moving-std <w>|autocorr [lag]|percentile <q>|outliers [k]|mad-outliers [t]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -67,6 +67,7 @@ fn main() -> ExitCode {
             "zscores" => print_rows(&kimi_space::zscores(&values)),
             "robust-zscores" => print_rows(&kimi_space::robust_zscores(&values)),
             "pct-change" => print_rows(&kimi_space::pct_change(&values)),
+            "diff" => print_rows(&kimi_space::diff(&values)),
             "log-returns" => print_rows(&kimi_space::log_returns(&values)),
             "moving-average" => {
                 let window = match args.get(1).and_then(|s| s.parse::<usize>().ok()) {

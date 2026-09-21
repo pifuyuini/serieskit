@@ -23,6 +23,7 @@ from kimi_space.stats import (
     zscores,
 )
 from kimi_space.transform import (
+    diff,
     log_returns,
     minmax_normalize,
     pct_change,
@@ -196,3 +197,9 @@ class TestRustParity:
         data = rng.normal(size=300).tolist() + [50.0]
         rust = rust_rows(rust_bin, ["robust-zscores"], data)
         assert_rows_close(rust, robust_zscores(data).tolist())
+
+    def test_diff_parity(self, rust_bin):
+        rng = np.random.default_rng(19)
+        data = rng.normal(size=300).tolist()
+        rust = rust_rows(rust_bin, ["diff"], data)
+        assert_rows_close(rust, diff(data).tolist())

@@ -316,3 +316,14 @@ fn robust_zscores_subcommand() {
     assert_eq!(r.len(), 5);
     assert!((r[4] - 65.4265).abs() < 1e-9);
 }
+
+#[test]
+fn diff_subcommand() {
+    let (ok, stdout, _) = run_bin(&["diff"], "1 2 4 8");
+    assert!(ok);
+    let lines: Vec<&str> = stdout.lines().collect();
+    assert_eq!(lines.len(), 4);
+    assert_eq!(lines[0], "NaN");
+    let rest: Vec<f64> = lines[1..].iter().map(|s| s.parse().unwrap()).collect();
+    assert_eq!(rest, vec![1.0, 2.0, 4.0]);
+}

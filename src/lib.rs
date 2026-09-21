@@ -406,6 +406,21 @@ pub fn pct_change(values: &[f64]) -> Vec<f64> {
     out
 }
 
+/// 一阶差分 x_t - x_{t-1}，长度与输入一致；首元素为 NaN。
+///
+/// ```
+/// let r = kimi_space::diff(&[1.0, 2.0, 4.0, 8.0]);
+/// assert!(r[0].is_nan());
+/// assert_eq!(&r[1..], &[1.0, 2.0, 4.0]);
+/// ```
+pub fn diff(values: &[f64]) -> Vec<f64> {
+    let mut out = vec![f64::NAN; values.len()];
+    for i in 1..values.len() {
+        out[i] = values[i] - values[i - 1];
+    }
+    out
+}
+
 /// 对数收益 ln(v_t / v_{t-1})，首元素与比值非正处为 NaN。
 ///
 /// ```
