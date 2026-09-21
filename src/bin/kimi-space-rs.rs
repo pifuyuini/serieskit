@@ -52,17 +52,41 @@ fn main() -> ExitCode {
         match command {
             "summary" => {
                 let s = kimi_space::summarize(&values).ok_or("未读取到任何数值")?;
-                println!("count={}", s.count);
-                println!("mean={}", s.mean);
-                println!("std={}", s.std);
-                println!("min={}", s.min);
-                println!("q25={}", s.q25);
-                println!("median={}", s.median);
-                println!("q75={}", s.q75);
-                println!("max={}", s.max);
-                println!("skew={}", s.skew);
-                println!("kurtosis={}", s.kurtosis);
-                println!("mad={}", s.mad);
+                if args.iter().any(|a| a == "--json") {
+                    fn num(v: f64) -> String {
+                        if v.is_finite() {
+                            format!("{v}")
+                        } else {
+                            "null".into()
+                        }
+                    }
+                    println!(
+                        "{{\"count\":{},\"mean\":{},\"std\":{},\"min\":{},\"q25\":{},\"median\":{},\"q75\":{},\"max\":{},\"skew\":{},\"kurtosis\":{},\"mad\":{}}}",
+                        s.count,
+                        num(s.mean),
+                        num(s.std),
+                        num(s.min),
+                        num(s.q25),
+                        num(s.median),
+                        num(s.q75),
+                        num(s.max),
+                        num(s.skew),
+                        num(s.kurtosis),
+                        num(s.mad)
+                    );
+                } else {
+                    println!("count={}", s.count);
+                    println!("mean={}", s.mean);
+                    println!("std={}", s.std);
+                    println!("min={}", s.min);
+                    println!("q25={}", s.q25);
+                    println!("median={}", s.median);
+                    println!("q75={}", s.q75);
+                    println!("max={}", s.max);
+                    println!("skew={}", s.skew);
+                    println!("kurtosis={}", s.kurtosis);
+                    println!("mad={}", s.mad);
+                }
             }
             "zscores" => print_rows(&kimi_space::zscores(&values)),
             "robust-zscores" => print_rows(&kimi_space::robust_zscores(&values)),

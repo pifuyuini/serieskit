@@ -49,6 +49,27 @@ fn explicit_summary_subcommand() {
 }
 
 #[test]
+fn summary_json_output() {
+    let (ok, stdout, _) = run_bin(&["summary", "--json"], "1 2 3 4");
+    assert!(ok);
+    let text = stdout.trim();
+    assert!(text.starts_with('{') && text.ends_with('}'));
+    assert!(text.contains("\"count\":4"));
+    assert!(text.contains("\"mean\":2.5"));
+    assert!(text.contains("\"mad\":1"));
+    assert!(text.contains("\"skew\":0"));
+}
+
+#[test]
+fn summary_json_null_for_nan() {
+    let (ok, stdout, _) = run_bin(&["summary", "--json"], "7 7 7");
+    assert!(ok);
+    assert!(stdout.contains("\"skew\":null"));
+    assert!(stdout.contains("\"kurtosis\":null"));
+    assert!(stdout.contains("\"mad\":0"));
+}
+
+#[test]
 fn accepts_newline_separated_input() {
     let (ok, stdout, _) = run_bin(&[], "1\n2\n3\n4\n");
     assert!(ok);

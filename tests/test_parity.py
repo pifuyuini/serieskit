@@ -3,6 +3,7 @@
 需要本机安装 cargo；没有 cargo 的环境（如纯 Python CI）自动跳过。
 """
 
+import json
 import math
 import shutil
 import subprocess
@@ -21,6 +22,7 @@ from kimi_space.stats import (
     moving_average,
     moving_median,
     moving_std,
+    summarize,
     zscores,
 )
 from kimi_space.transform import (
@@ -210,3 +212,30 @@ class TestRustParity:
         data = rng.normal(size=300).tolist()
         rust = rust_rows(rust_bin, ["moving-median", "6"], data)
         assert_rows_close(rust, moving_median(data, 6).tolist())
+
+    def test_summary_json_parity(self, rust_bin):
+        rng = np.random.default_rng(21)
+        data = rng.normal(size=200).tolist()
+        proc = subprocess.run(
+            [str(rust_bin), "summary", "--json"],
+            input=" ".join(map(repr, data)),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        payload = json.loads(proc.stdout)  # 严格 JSON 解析成功即格式合法
+        s = summarize(data)
+        for key in [
+            "count",
+            "mean",
+            "std",
+            "min",
+            "q25",
+            "median",
+            "q75",
+            "max",
+            "skew",
+            "kurtosis",
+            "mad",
+        ]:
+            assert payload[key] == pytest.approx(getattr(s, key), rel=1e-9)
