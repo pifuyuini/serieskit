@@ -138,6 +138,23 @@ class TestPlotOutliers:
         with pytest.raises(ValueError, match="长度不一致"):
             plot_outliers([1.0, 2.0], mask=[True])
 
+    def test_mad_method(self):
+        data = [1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0]
+        ax = plot_outliers(data, method="mad")
+        offsets = ax.collections[0].get_offsets()
+        assert offsets[0, 0] == 6
+        assert offsets[0, 1] == 100.0
+
+    def test_zscore_method(self):
+        rng = np.random.default_rng(1)
+        data = np.concatenate([rng.normal(0, 1, 500), [20.0]])
+        ax = plot_outliers(data, method="zscore")
+        assert len(ax.collections) == 1
+
+    def test_unknown_method_raises(self):
+        with pytest.raises(ValueError, match="未知 method"):
+            plot_outliers([1.0, 2.0], method="nope")
+
 
 class TestPlotMultiSeries:
     def test_draws_all_series_with_labels(self):

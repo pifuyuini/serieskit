@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as scipy_stats
 
-from kimi_space.outliers import iqr_mask
+from kimi_space.outliers import iqr_mask, mad_mask, zscore_mask
 from kimi_space.stats import moving_average, moving_std
 
 if TYPE_CHECKING:
@@ -133,7 +133,9 @@ def plot_histogram(
 def plot_outliers(
     values: Iterable[float],
     *,
+    method: str = "iqr",
     k: float = 1.5,
+    threshold: float | None = None,
     mask: Iterable[bool] | None = None,
     ax: Axes | None = None,
     title: str | None = None,
@@ -142,8 +144,10 @@ def plot_outliers(
 
     Args:
         values: 数据序列。
-        k: IQR 栅栏系数，默认 1.5（仅在 mask 未给定时生效）。
-        mask: 外部判定的正常值掩码（True 为正常）；给定时优先于内置 IQR。
+        method: 内置判定方法，"iqr"（默认）、"zscore" 或 "mad"；mask 给定时忽略。
+        k: IQR 栅栏系数，默认 1.5（method="iqr" 时生效）。
+        threshold: zscore/mad 阈值（默认 zscore=3.0，mad=3.5）。
+        mask: 外部判定的正常值掩码（True 为正常）；给定时优先于内置判定。
         ax: 目标 Axes；默认新建。
         title: 标题。
 
@@ -151,12 +155,22 @@ def plot_outliers(
         绘制完成的 Axes。
 
     Raises:
-        ValueError: mask 与 values 长度不一致。
+        ValueError: mask 与 values 长度不一致，或 method 未知。
     """
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
     ax.plot(arr, label="series")
-    m = iqr_mask(arr, k=k) if mask is None else np.asarray(list(mask), dtype=bool)
+    if mask is not None:
+        m = np.asarray(list(mask), dtype=bool)
+    elif method == "iqr":
+        m = iqr_mask(arr, k=k)
+    elif method == "zscore":
+        m = zscore_mask(arr, threshold=threshold or 3.0)
+    elif method == "mad":
+        m = mad_mask(arr, threshold=threshold or 3.5)
+    else:
+        msg = f"未知 method: {method!r}"
+        raise ValueError(msg)
     if m.size != arr.size:
         msg = f"mask 与 values 长度不一致: {m.size} vs {arr.size}"
         raise ValueError(msg)
