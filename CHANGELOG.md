@@ -2,6 +2,14 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.9.0] - 2026-09-21
+
+### 新增
+
+- MAD 修正 z-score 异常值检测（Iglewicz–Hoaglin，阈值默认 3.5）
+  - Python：`mad_mask` / `mad_outliers`；CLI `outliers --method mad`（阈值默认按方法解析）
+  - Rust：`mad_mask` 内核函数与 `mad-outliers [t]` 子命令；parity 校验
+
 ## [0.8.0] - 2026-09-21
 
 ### 新增
