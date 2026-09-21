@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.10.0] - 2026-09-21
+
+### 新增
+
+- `robust_zscores` 稳健标准化（双侧）；CLI `transform --method robust_zscore`；Rust `robust-zscores` 子命令
+- `plot_multi_series` 多序列对比图
+
 ## [0.9.0] - 2026-09-21
 
 ### 新增

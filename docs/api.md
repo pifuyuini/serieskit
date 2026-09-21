@@ -52,6 +52,7 @@
 | --- | --- |
 | `apply_style()` | 应用统一风格 rcParams |
 | `plot_series(values, *, x=None, smooth_window=None, ...)` | 折线，可叠加滑动平均 |
+| `plot_multi_series(series, *, x=None, ...)` | 多序列对比（Mapping[名称, 序列]） |
 | `plot_histogram(values, *, bins=20, ...)` | 直方图 + 均值/中位数参考线 |
 | `plot_correlation_heatmap(df, *, columns=None, ...)` | 相关系数热力图（格内标注） |
 | `plot_box(df, *, columns=None, ...)` | 多列箱线图 |
