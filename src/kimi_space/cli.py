@@ -21,7 +21,7 @@ from kimi_space.plotting import (
     plot_outliers,
     plot_series,
 )
-from kimi_space.stats import zscores
+from kimi_space.stats import autocorr, zscores
 from kimi_space.transform import log_returns, minmax_normalize, pct_change
 
 if TYPE_CHECKING:
@@ -116,6 +116,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="变换方法（默认 zscore）",
     )
     p_trans.set_defaults(func=_cmd_transform)
+
+    p_ac = sub.add_parser("autocorr", help="输出指定数值列的 lag-k 自相关系数")
+    p_ac.add_argument("csv", help="CSV 文件路径")
+    p_ac.add_argument("column", help="数值列名")
+    p_ac.add_argument("--lag", type=int, default=1, help="滞后阶数（默认 1）")
+    p_ac.set_defaults(func=_cmd_autocorr)
 
     return parser
 
@@ -225,6 +231,12 @@ def _cmd_transform(args: argparse.Namespace) -> int:
         result = zscores(series)
     for value in result:
         print(value)
+    return 0
+
+
+def _cmd_autocorr(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv, numeric_columns=[args.column])
+    print(autocorr(df[args.column], lag=args.lag))
     return 0
 
 

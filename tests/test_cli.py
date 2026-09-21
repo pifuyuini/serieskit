@@ -247,3 +247,17 @@ class TestCorr:
     def test_bad_column_returns_1(self, csv_path, capsys):
         assert main(["corr", str(csv_path), "--columns", "nope"]) == 1
         assert "error" in capsys.readouterr().err
+
+
+class TestAutocorr:
+    def test_default_lag(self, csv_path, capsys):
+        assert main(["autocorr", str(csv_path), "a"]) == 0
+        assert float(capsys.readouterr().out.strip()) == pytest.approx(1.0)
+
+    def test_explicit_lag(self, csv_path, capsys):
+        assert main(["autocorr", str(csv_path), "a", "--lag", "2"]) == 0
+        float(capsys.readouterr().out.strip())
+
+    def test_invalid_lag_returns_1(self, csv_path, capsys):
+        assert main(["autocorr", str(csv_path), "a", "--lag", "0"]) == 1
+        assert "error" in capsys.readouterr().err
