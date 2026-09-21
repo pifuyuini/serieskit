@@ -52,6 +52,13 @@ class TestLoadCsv:
         assert list(df.columns) == ["name", "a", "b"]
         assert len(df) == 3
 
+    def test_parse_dates(self, tmp_path):
+        path = tmp_path / "ts.csv"
+        path.write_text("date,v\n2026-01-01,1\n2026-01-02,2\n", encoding="utf-8")
+        df = load_csv(path, parse_dates=["date"])
+        assert pd.api.types.is_datetime64_any_dtype(df["date"])
+        assert df["date"].iloc[0].year == 2026
+
 
 class TestNumericSummary:
     def test_summarizes_numeric_columns(self):

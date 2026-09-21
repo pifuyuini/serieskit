@@ -19,13 +19,17 @@ def load_csv(
     *,
     required_columns: Iterable[str] | None = None,
     numeric_columns: Iterable[str] | None = None,
+    parse_dates: Iterable[str] | None = None,
 ) -> pd.DataFrame:
     """读取 CSV 并可校验必需列、将指定列强制转为数值类型。
 
     path 为 "-" 时从标准输入读取。numeric_columns 中无法解析为数值的单元格
-    会抛出 ValueError。
+    会抛出 ValueError。parse_dates 指定按日期解析的列。
     """
-    df = pd.read_csv(sys.stdin) if str(path) == "-" else pd.read_csv(path)
+    df = pd.read_csv(
+        sys.stdin if str(path) == "-" else path,
+        parse_dates=list(parse_dates) if parse_dates else None,
+    )
     if required_columns is not None:
         missing = [c for c in required_columns if c not in df.columns]
         if missing:
