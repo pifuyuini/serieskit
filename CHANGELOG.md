@@ -2,6 +2,20 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.4.0] - 2026-09-21
+
+### 新增
+
+- 统计
+  - `autocorr` lag-k 自相关系数（Python 与 Rust 双侧，parity 校验 lag 1/5/20）
+  - `moving_std` 滑动窗口样本标准差（双侧 + parity）
+- CLI
+  - `summary --by` 分组统计（兼容 --json/--output）
+  - `autocorr` 子命令
+  - `kimi-space-rs`：`autocorr [lag]`、`moving-std <w>`、`-h/--help`
+- 文档
+  - 新增 docs/api.md 完整 API 参考
+
 ## [0.3.0] - 2026-09-21
 
 ### 新增
