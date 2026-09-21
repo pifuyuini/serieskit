@@ -151,6 +151,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_rep = sub.add_parser("report", help="一键生成报告目录（统计表 + 全部图表）")
     p_rep.add_argument("csv", help="CSV 文件路径")
     p_rep.add_argument("--outdir", default="report", help="输出目录（默认 report/）")
+    p_rep.add_argument("--by", help="按指定列分组统计（多列用逗号分隔）")
     p_rep.set_defaults(func=_cmd_report)
 
     return parser
@@ -308,7 +309,11 @@ def _cmd_report(args: argparse.Namespace) -> int:
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     df = load_csv(args.csv)
-    numeric_summary(df).to_csv(outdir / "summary.csv")
+    if args.by:
+        summary = numeric_summary_by(df, args.by.split(","))
+        summary.to_csv(outdir / "summary_by.csv")
+    else:
+        numeric_summary(df).to_csv(outdir / "summary.csv")
     numeric = df.select_dtypes(include="number")
     apply_style()
     for col in numeric.columns:

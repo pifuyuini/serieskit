@@ -388,6 +388,18 @@ class TestReport:
         assert main(["report", str(csv), "--outdir", str(tmp_path / "r")]) == 1
         assert "error" in capsys.readouterr().err
 
+    def test_group_by_writes_summary_by(self, tmp_path, capsys):
+        import pandas as pd
+
+        csv = tmp_path / "g.csv"
+        csv.write_text("g,x\na,1\na,3\nb,10\nb,20\n", encoding="utf-8")
+        outdir = tmp_path / "rep"
+        assert main(["report", str(csv), "--by", "g", "--outdir", str(outdir)]) == 0
+        assert not (outdir / "summary.csv").exists()
+        saved = pd.read_csv(outdir / "summary_by.csv", index_col=[0, 1])
+        assert saved.loc[("a", "x"), "mean"] == pytest.approx(2.0)
+        assert (outdir / "x_hist.png").exists()
+
 
 class TestMad:
     def test_value(self, csv_path, capsys):
