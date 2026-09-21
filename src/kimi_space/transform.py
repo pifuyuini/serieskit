@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from kimi_space.stats import median_abs_deviation
+from kimi_space.stats import _median_and_mad
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -73,8 +73,7 @@ def robust_zscores(values: Iterable[float]) -> np.ndarray:
     if arr.size == 0:
         msg = "values 为空"
         raise ValueError(msg)
-    med = float(np.median(arr))
-    mad = median_abs_deviation(arr)
+    med, mad = _median_and_mad(arr)
     if mad == 0.0:
         return np.zeros_like(arr)
     return 0.6745 * (arr - med) / mad

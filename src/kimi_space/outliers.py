@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import numpy.typing as npt
 
-from kimi_space.stats import median_abs_deviation, zscores
+from kimi_space.stats import _median_and_mad, zscores
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -66,8 +66,7 @@ def mad_mask(
     if arr.size == 0:
         msg = "values 为空"
         raise ValueError(msg)
-    med = float(np.median(arr))
-    mad = median_abs_deviation(arr)
+    med, mad = _median_and_mad(arr)
     if mad == 0.0:
         result: npt.NDArray[np.bool_] = arr == med
         return result

@@ -66,19 +66,25 @@ def summarize(values: Iterable[float]) -> SummaryStats:
         msg = "values 为空（或全部为 NaN）"
         raise ValueError(msg)
     std = float(np.std(arr, ddof=1)) if arr.size > 1 else 0.0
+    median, mad = _median_and_mad(arr)
     return SummaryStats(
         count=int(arr.size),
         mean=float(np.mean(arr)),
         std=std,
         min=float(np.min(arr)),
         q25=float(np.percentile(arr, 25)),
-        median=float(np.median(arr)),
+        median=median,
         q75=float(np.percentile(arr, 75)),
         max=float(np.max(arr)),
         skew=float(scipy_stats.skew(arr)),
         kurtosis=float(scipy_stats.kurtosis(arr)),
-        mad=median_abs_deviation(arr),
+        mad=mad,
     )
+
+
+def _median_and_mad(arr: np.ndarray) -> tuple[float, float]:
+    med = float(np.median(arr))
+    return med, float(np.median(np.abs(arr - med)))
 
 
 def moving_average(values: Iterable[float], window: int) -> np.ndarray:
@@ -208,5 +214,4 @@ def median_abs_deviation(values: Iterable[float]) -> float:
     if arr.size == 0:
         msg = "values 为空"
         raise ValueError(msg)
-    med = float(np.median(arr))
-    return float(np.median(np.abs(arr - med)))
+    return _median_and_mad(arr)[1]
