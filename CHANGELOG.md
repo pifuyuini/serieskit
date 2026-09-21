@@ -2,6 +2,14 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.13.0] - 2026-09-21
+
+### 新增
+
+- `plot_outliers` 内置 `method`（iqr/zscore/mad）与 `threshold` 参数
+- CLI `corr --output` 相关矩阵落盘 CSV
+- 文档：io.py 三个公共函数补全 Args/Returns/Raises
+
 ## [0.12.0] - 2026-09-21
 
 ### 新增
