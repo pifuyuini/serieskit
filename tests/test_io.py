@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from kimi_space.io import load_csv, numeric_summary
+from kimi_space.io import load_csv, numeric_summary, numeric_summary_by
 
 CSV_TEXT = "name,a,b\nx,1,1.5\ny,2,2.5\nz,3,3.5\n"
 
@@ -68,3 +68,22 @@ class TestNumericSummary:
         df = pd.DataFrame({"s": list("xyz")})
         with pytest.raises(ValueError, match="不含数值列"):
             numeric_summary(df)
+
+
+class TestNumericSummaryBy:
+    def test_groups_rows(self):
+        df = pd.DataFrame({"g": ["a", "a", "b", "b"], "x": [1.0, 3.0, 10.0, 20.0]})
+        result = numeric_summary_by(df, "g")
+        assert result.loc[("a", "x"), "mean"] == pytest.approx(2.0)
+        assert result.loc[("b", "x"), "mean"] == pytest.approx(15.0)
+        assert result.loc[("a", "x"), "count"] == 2
+
+    def test_numeric_group_column_excluded(self):
+        df = pd.DataFrame({"g": [0, 0, 1, 1], "x": [1.0, 2.0, 3.0, 5.0]})
+        result = numeric_summary_by(df, "g")
+        assert "g" not in result.index.get_level_values("column")
+
+    def test_missing_group_column_raises(self):
+        df = pd.DataFrame({"x": [1.0]})
+        with pytest.raises(ValueError, match="分组列不存在"):
+            numeric_summary_by(df, "nope")

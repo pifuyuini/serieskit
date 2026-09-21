@@ -40,6 +40,21 @@ class TestSummary:
         assert saved.loc["a", "mean"] == pytest.approx(2.0)
         assert saved.loc["b", "count"] == 3
 
+    def test_group_by(self, csv_path, capsys):
+        assert main(["summary", str(csv_path), "--by", "name"]) == 0
+        out = capsys.readouterr().out
+        assert "x" in out and "y" in out and "z" in out
+
+    def test_group_by_json(self, csv_path, capsys):
+        assert main(["summary", str(csv_path), "--by", "name", "--json"]) == 0
+        payload = json.loads(capsys.readouterr().out)
+        assert payload["x | a"]["mean"] == pytest.approx(1.0)
+        assert payload["z | b"]["max"] == pytest.approx(3.5)
+
+    def test_group_by_missing_column_returns_1(self, csv_path, capsys):
+        assert main(["summary", str(csv_path), "--by", "nope"]) == 1
+        assert "error" in capsys.readouterr().err
+
 
 class TestHist:
     def test_saves_default_output(self, csv_path, tmp_path, monkeypatch, capsys):

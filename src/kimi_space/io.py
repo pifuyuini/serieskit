@@ -48,3 +48,18 @@ def numeric_summary(df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(msg)
     rows = {col: summarize(numeric[col]).to_dict() for col in numeric.columns}
     return pd.DataFrame.from_dict(rows, orient="index").rename_axis("column")
+
+
+def numeric_summary_by(df: pd.DataFrame, by: str) -> pd.DataFrame:
+    """按分类列分组后逐组计算数值列描述性统计（MultiIndex: 组, 列）。
+
+    分组列本身不参与统计。
+    """
+    if by not in df.columns:
+        msg = f"分组列不存在: {by}"
+        raise ValueError(msg)
+    parts = {
+        str(name): numeric_summary(g.drop(columns=[by], errors="ignore"))
+        for name, g in df.groupby(by)
+    }
+    return pd.concat(parts, names=[by, "column"])

@@ -11,7 +11,7 @@ import pandas as pd
 from matplotlib.figure import Figure
 
 from kimi_space import __version__
-from kimi_space.io import load_csv, numeric_summary
+from kimi_space.io import load_csv, numeric_summary, numeric_summary_by
 from kimi_space.outliers import iqr_mask, zscore_mask
 from kimi_space.plotting import (
     apply_style,
@@ -49,6 +49,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_summary.add_argument("csv", help="CSV 文件路径")
     p_summary.add_argument("--json", action="store_true", help="以 JSON 格式输出")
     p_summary.add_argument("--output", help="将统计表保存为 CSV 文件")
+    p_summary.add_argument("--by", help="按指定列分组后逐组统计")
     p_summary.set_defaults(func=_cmd_summary)
 
     p_hist = sub.add_parser("hist", help="为指定数值列绘制直方图并保存")
@@ -121,13 +122,17 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _cmd_summary(args: argparse.Namespace) -> int:
     df = load_csv(args.csv)
-    summary = numeric_summary(df)
+    summary = numeric_summary_by(df, args.by) if args.by else numeric_summary(df)
     if args.output:
         summary.to_csv(args.output)
         print(args.output)
         return 0
     if args.json:
-        payload = {col: row.to_dict() for col, row in summary.iterrows()}
+
+        def key_of(idx: object) -> str:
+            return " | ".join(map(str, idx)) if isinstance(idx, tuple) else str(idx)
+
+        payload = {key_of(idx): row.to_dict() for idx, row in summary.iterrows()}
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
         with pd.option_context("display.float_format", lambda v: f"{v:.4f}"):
