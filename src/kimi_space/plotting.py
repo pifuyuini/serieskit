@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from kimi_space.outliers import iqr_mask
-from kimi_space.stats import moving_average
+from kimi_space.stats import moving_average, moving_std
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -112,6 +112,40 @@ def plot_outliers(
     if not m.all():
         idx = np.flatnonzero(~m)
         ax.scatter(idx, arr[idx], color="C3", zorder=3, label=f"outliers ({idx.size})")
+    if title:
+        ax.set_title(title)
+    ax.legend()
+    return ax
+
+
+def plot_bands(
+    values: Iterable[float],
+    *,
+    window: int = 20,
+    num_std: float = 2.0,
+    x: Iterable[float] | None = None,
+    ax: Axes | None = None,
+    title: str | None = None,
+) -> Axes:
+    """绘制序列及其滑动均值 ± num_std 倍滑动标准差的波动带。"""
+    ax = _get_ax(ax)
+    arr = np.asarray(list(values), dtype=float)
+    ma = moving_average(arr, window)
+    sd = moving_std(arr, window)
+    xs = np.arange(arr.size) if x is None else np.asarray(list(x))
+    if xs.size != arr.size:
+        msg = f"x 与 values 长度不一致: {xs.size} vs {arr.size}"
+        raise ValueError(msg)
+    offset = window - 1
+    ax.plot(xs, arr, alpha=0.4, label="series")
+    ax.plot(xs[offset:], ma, label=f"MA{window}")
+    ax.fill_between(
+        xs[offset:],
+        ma - num_std * sd,
+        ma + num_std * sd,
+        alpha=0.2,
+        label=f"±{num_std}σ",
+    )
     if title:
         ax.set_title(title)
     ax.legend()

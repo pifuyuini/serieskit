@@ -6,6 +6,7 @@ from matplotlib.axes import Axes
 
 from kimi_space.plotting import (
     apply_style,
+    plot_bands,
     plot_box,
     plot_correlation_heatmap,
     plot_histogram,
@@ -107,6 +108,33 @@ class TestPlotOutliers:
     def test_mask_length_mismatch_raises(self):
         with pytest.raises(ValueError, match="长度不一致"):
             plot_outliers([1.0, 2.0], mask=[True])
+
+
+class TestPlotBands:
+    def test_draws_lines_and_band(self):
+        rng = np.random.default_rng(0)
+        data = 10 + rng.normal(size=100).cumsum() * 0.1
+        ax = plot_bands(data, window=10)
+        assert len(ax.lines) == 2  # series + MA
+        assert len(ax.collections) == 1  # fill_between 波动带
+
+    def test_band_geometry_on_constant_data(self):
+        ax = plot_bands([5.0] * 30, window=5, num_std=2.0)
+        poly = ax.collections[0]
+        ys = poly.get_paths()[0].vertices[:, 1]
+        np.testing.assert_allclose(np.abs(ys - 5.0), 0.0, atol=1e-12)
+
+    def test_custom_x(self):
+        ax = plot_bands([1.0, 2.0, 3.0, 4.0], window=2, x=[10, 20, 30, 40])
+        np.testing.assert_array_equal(ax.lines[1].get_xdata(), [20, 30, 40])
+
+    def test_x_length_mismatch_raises(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            plot_bands([1.0, 2.0], window=2, x=[1.0])
+
+    def test_title_is_set(self):
+        ax = plot_bands([1.0, 2.0, 3.0], window=2, title="band")
+        assert ax.get_title() == "band"
 
 
 class TestPlotBox:
