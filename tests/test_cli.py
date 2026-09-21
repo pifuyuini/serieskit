@@ -55,6 +55,20 @@ class TestSummary:
         assert main(["summary", str(csv_path), "--by", "nope"]) == 1
         assert "error" in capsys.readouterr().err
 
+    def test_group_by_two_columns(self, tmp_path, capsys):
+        csv = tmp_path / "g2.csv"
+        csv.write_text("g1,g2,v\na,u,1\na,u,2\na,v,3\nb,u,4\n", encoding="utf-8")
+        assert main(["summary", str(csv), "--by", "g1,g2"]) == 0
+        out = capsys.readouterr().out
+        assert "g1" in out and "g2" in out
+
+    def test_group_by_two_columns_json(self, tmp_path, capsys):
+        csv = tmp_path / "g2.csv"
+        csv.write_text("g1,g2,v\na,u,1\na,u,2\na,v,3\nb,u,4\n", encoding="utf-8")
+        assert main(["summary", str(csv), "--by", "g1,g2", "--json"]) == 0
+        payload = json.loads(capsys.readouterr().out)
+        assert payload["a | u | v"]["mean"] == pytest.approx(1.5)
+
 
 class TestHist:
     def test_saves_default_output(self, csv_path, tmp_path, monkeypatch, capsys):

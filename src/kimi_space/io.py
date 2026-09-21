@@ -54,16 +54,20 @@ def numeric_summary(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame.from_dict(rows, orient="index").rename_axis("column")
 
 
-def numeric_summary_by(df: pd.DataFrame, by: str) -> pd.DataFrame:
-    """按分类列分组后逐组计算数值列描述性统计（MultiIndex: 组, 列）。
+def numeric_summary_by(df: pd.DataFrame, by: str | Iterable[str]) -> pd.DataFrame:
+    """按一列或多列分组后逐组计算数值列描述性统计（MultiIndex：组… × 列）。
 
     分组列本身不参与统计。
     """
-    if by not in df.columns:
-        msg = f"分组列不存在: {by}"
+    keys = [by] if isinstance(by, str) else list(by)
+    missing = [k for k in keys if k not in df.columns]
+    if missing:
+        msg = f"分组列不存在: {missing}"
         raise ValueError(msg)
-    parts = {
-        str(name): numeric_summary(g.drop(columns=[by], errors="ignore"))
-        for name, g in df.groupby(by)
-    }
-    return pd.concat(parts, names=[by, "column"])
+    parts = {}
+    for name, g in df.groupby(keys):
+        label = name if isinstance(name, tuple) else (name,)
+        parts[tuple(str(v) for v in label)] = numeric_summary(
+            g.drop(columns=keys, errors="ignore")
+        )
+    return pd.concat(parts, names=[*keys, "column"])

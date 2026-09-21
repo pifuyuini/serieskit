@@ -94,3 +94,21 @@ class TestNumericSummaryBy:
         df = pd.DataFrame({"x": [1.0]})
         with pytest.raises(ValueError, match="分组列不存在"):
             numeric_summary_by(df, "nope")
+
+    def test_multiple_keys(self):
+        df = pd.DataFrame(
+            {
+                "g1": ["a", "a", "a", "b", "b", "b"],
+                "g2": ["u", "u", "v", "v", "u", "u"],
+                "x": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            }
+        )
+        result = numeric_summary_by(df, ["g1", "g2"])
+        assert result.index.names == ["g1", "g2", "column"]
+        assert result.loc[("a", "u", "x"), "mean"] == pytest.approx(1.5)
+        assert result.loc[("b", "u", "x"), "count"] == 2
+
+    def test_multiple_keys_missing_column(self):
+        df = pd.DataFrame({"g": ["a"], "x": [1.0]})
+        with pytest.raises(ValueError, match="分组列不存在"):
+            numeric_summary_by(df, ["g", "nope"])
