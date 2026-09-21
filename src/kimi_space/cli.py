@@ -27,6 +27,7 @@ from kimi_space.plotting import (
 )
 from kimi_space.stats import autocorr, median_abs_deviation, zscores
 from kimi_space.transform import (
+    diff,
     log_returns,
     minmax_normalize,
     pct_change,
@@ -126,7 +127,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_trans.add_argument("column", help="数值列名")
     p_trans.add_argument(
         "--method",
-        choices=["minmax", "pct_change", "log_returns", "zscore", "robust_zscore"],
+        choices=[
+            "minmax",
+            "pct_change",
+            "log_returns",
+            "zscore",
+            "robust_zscore",
+            "diff",
+        ],
         default="zscore",
         help="变换方法（默认 zscore）",
     )
@@ -283,6 +291,8 @@ def _cmd_transform(args: argparse.Namespace) -> int:
         result = log_returns(series)
     elif args.method == "robust_zscore":
         result = robust_zscores(series)
+    elif args.method == "diff":
+        result = diff(series)
     else:
         result = zscores(series)
     for value in result:

@@ -308,6 +308,12 @@ class TestTransform:
         assert len(lines) == 3
         assert float(lines[1]) == pytest.approx(0.0)
 
+    def test_diff_method(self, csv_path, capsys):
+        assert main(["transform", str(csv_path), "a", "--method", "diff"]) == 0
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert lines[0] == "nan"
+        assert float(lines[1]) == pytest.approx(1.0)
+
     def test_non_numeric_column_returns_1(self, csv_path, capsys):
         assert main(["transform", str(csv_path), "name"]) == 1
         assert "error" in capsys.readouterr().err

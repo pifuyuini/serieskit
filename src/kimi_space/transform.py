@@ -47,6 +47,21 @@ def pct_change(values: Iterable[float]) -> np.ndarray:
     return out
 
 
+def diff(values: Iterable[float]) -> np.ndarray:
+    """一阶差分 x_t - x_{t-1}，长度与输入一致；首元素为 NaN。
+
+    >>> diff([1.0, 2.0, 4.0, 8.0])
+    array([nan,  1.,  2.,  4.])
+    """
+    arr = np.asarray(list(values), dtype=float).ravel()
+    if arr.size == 0:
+        msg = "values 为空"
+        raise ValueError(msg)
+    out = np.full_like(arr, np.nan)
+    out[1:] = np.diff(arr)
+    return out
+
+
 def log_returns(values: Iterable[float]) -> np.ndarray:
     """对数收益 log(v_t / v_{t-1})，首元素 NaN；比值非正的位置为 NaN。"""
     arr = np.asarray(list(values), dtype=float).ravel()

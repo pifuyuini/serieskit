@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from kimi_space.transform import (
+    diff,
     log_returns,
     minmax_normalize,
     pct_change,
@@ -62,6 +63,24 @@ class TestLogReturns:
     def test_empty_raises(self):
         with pytest.raises(ValueError, match="为空"):
             log_returns([])
+
+
+class TestDiff:
+    def test_known_values(self):
+        result = diff([1.0, 2.0, 4.0, 8.0])
+        assert np.isnan(result[0])
+        np.testing.assert_allclose(result[1:], [1.0, 2.0, 4.0])
+
+    def test_length_preserved(self):
+        assert len(diff([5.0, 1.0, 3.0])) == 3
+
+    def test_negative_deltas(self):
+        result = diff([10.0, 5.0])
+        assert result[1] == pytest.approx(-5.0)
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError, match="为空"):
+            diff([])
 
 
 class TestRobustZscores:

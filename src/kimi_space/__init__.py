@@ -21,6 +21,7 @@ from kimi_space.stats import (
     zscores,
 )
 from kimi_space.transform import (
+    diff,
     log_returns,
     minmax_normalize,
     pct_change,
@@ -32,6 +33,7 @@ __version__ = "0.13.0"
 __all__ = [
     "SummaryStats",
     "autocorr",
+    "diff",
     "geometric_mean",
     "harmonic_mean",
     "iqr_mask",
