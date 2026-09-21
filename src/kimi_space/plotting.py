@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats as scipy_stats
 
 from kimi_space.outliers import iqr_mask
 from kimi_space.stats import moving_average, moving_std
@@ -83,15 +84,23 @@ def plot_histogram(
     values: Iterable[float],
     *,
     bins: int = 20,
+    kde: bool = False,
     ax: Axes | None = None,
     title: str | None = None,
 ) -> Axes:
-    """绘制直方图并标注均值与中位数参考线。"""
+    """绘制直方图并标注均值与中位数参考线；kde=True 时叠加核密度估计曲线。
+
+    kde 模式下直方图切换为密度刻度，与 KDE 曲线同尺度。
+    """
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
-    ax.hist(arr, bins=bins, alpha=0.75)
+    ax.hist(arr, bins=bins, alpha=0.75, density=kde)
     ax.axvline(np.mean(arr), color="C1", linestyle="--", label="mean")
     ax.axvline(np.median(arr), color="C2", linestyle=":", label="median")
+    if kde:
+        density = scipy_stats.gaussian_kde(arr)
+        xs = np.linspace(np.min(arr), np.max(arr), 200)
+        ax.plot(xs, density(xs), color="C0", label="kde")
     if title:
         ax.set_title(title)
     ax.legend()

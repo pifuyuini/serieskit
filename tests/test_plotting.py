@@ -86,6 +86,22 @@ class TestPlotHistogram:
         ax = plot_histogram(np.arange(100), bins=10)
         assert len(ax.patches) == 10
 
+    def test_kde_adds_density_curve(self):
+        rng = np.random.default_rng(3)
+        ax = plot_histogram(rng.normal(size=300), kde=True)
+        # mean/median 参考线 + kde 曲线
+        assert len(ax.lines) == 3
+        kde_line = ax.lines[-1]
+        assert kde_line.get_label() == "kde"
+        assert len(kde_line.get_xdata()) == 200
+
+    def test_kde_uses_density_scale(self):
+        rng = np.random.default_rng(4)
+        ax = plot_histogram(rng.normal(size=300), bins=10, kde=True)
+        widths = np.diff([p.get_x() for p in ax.patches[:2]]).item(0)
+        heights_sum = sum(p.get_height() for p in ax.patches)
+        assert heights_sum * widths == pytest.approx(1.0, rel=1e-6)
+
 
 class TestPlotOutliers:
     def test_marks_outliers_with_scatter(self):
