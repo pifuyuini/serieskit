@@ -144,6 +144,29 @@ def moving_median(values: Iterable[float], window: int) -> np.ndarray:
     return result
 
 
+def moving_percentile(values: Iterable[float], window: int, q: float) -> np.ndarray:
+    """滑动窗口分位数（线性插值，与 numpy 默认一致），q ∈ [0, 100]。
+
+    moving_median 即 q=50 的特例。返回长度为 len(values) - window + 1 的数组。
+
+    >>> moving_percentile([1.0, 2.0, 3.0, 4.0], 2, 0)
+    array([1., 2., 3.])
+    """
+    if window < 1:
+        msg = f"window 必须 >= 1，收到 {window}"
+        raise ValueError(msg)
+    if not 0.0 <= q <= 100.0:
+        msg = f"q 必须在 [0, 100]，收到 {q}"
+        raise ValueError(msg)
+    arr = np.asarray(list(values), dtype=float).ravel()
+    if window > arr.size:
+        msg = f"window ({window}) 超过数据长度 ({arr.size})"
+        raise ValueError(msg)
+    windows = np.lib.stride_tricks.sliding_window_view(arr, window)
+    result: npt.NDArray[np.float64] = np.percentile(windows, q, axis=-1)
+    return result
+
+
 def zscores(values: Iterable[float]) -> np.ndarray:
     """基于样本标准差的标准化；常数序列返回全零。
 

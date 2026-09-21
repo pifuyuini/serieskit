@@ -9,6 +9,7 @@ from kimi_space.stats import (
     median_abs_deviation,
     moving_average,
     moving_median,
+    moving_percentile,
     moving_std,
     summarize,
     weighted_mean,
@@ -132,6 +133,34 @@ class TestMovingMedian:
     def test_window_larger_than_data_raises(self):
         with pytest.raises(ValueError, match="超过数据长度"):
             moving_median([1, 2], 3)
+
+
+class TestMovingPercentile:
+    def test_known_values(self):
+        result = moving_percentile([1.0, 2.0, 3.0, 4.0], 2, 0)
+        np.testing.assert_allclose(result, [1.0, 2.0, 3.0])
+
+    def test_q100_is_rolling_max(self):
+        result = moving_percentile([1.0, 5.0, 2.0, 4.0], 3, 100)
+        np.testing.assert_allclose(result, [5.0, 5.0])
+
+    def test_q50_matches_moving_median(self):
+        data = [3.0, 1.0, 4.0, 1.0, 5.0, 9.0]
+        np.testing.assert_allclose(
+            moving_percentile(data, 3, 50), moving_median(data, 3)
+        )
+
+    def test_q_out_of_range_raises(self):
+        with pytest.raises(ValueError, match="\\[0, 100\\]"):
+            moving_percentile([1, 2], 1, 101)
+
+    def test_window_zero_raises(self):
+        with pytest.raises(ValueError, match=">= 1"):
+            moving_percentile([1, 2], 0, 50)
+
+    def test_window_larger_than_data_raises(self):
+        with pytest.raises(ValueError, match="超过数据长度"):
+            moving_percentile([1, 2], 3, 50)
 
 
 class TestZscores:
