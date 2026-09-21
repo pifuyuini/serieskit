@@ -2,6 +2,15 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.8.0] - 2026-09-21
+
+### 新增
+
+- `median_abs_deviation`（MAD）双侧实现；`SummaryStats`/`Summary` 摘要新增 `mad` 字段
+- CLI：`mad` 子命令；Rust：`kimi-space-rs mad`；`summary` 输出新增 `mad=` 行
+- CLI：`report` 一键报告目录（统计表 + 直方图 + 热力图 + 箱线图）
+- 文档：plotting 六个公共函数的 Args/Returns/Raises 完整文档
+
 ## [0.7.0] - 2026-09-21
 
 ### 新增
