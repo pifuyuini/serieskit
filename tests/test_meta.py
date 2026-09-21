@@ -1,6 +1,8 @@
 """版本号与文档的一致性校验：pyproject、Cargo.toml、__init__.py、CHANGELOG。"""
 
 import re
+import shutil
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -78,3 +80,24 @@ def test_api_md_lists_all_cli_subcommands():
         "diff",
     ]:
         assert cmd in api, f"api.md 缺少 Rust 子命令 {cmd}"
+
+
+def test_changelog_top_matches_latest_tag():
+    """发版后忘记打 tag 时此测试失败（无 git 或无 tag 的环境自动跳过）。"""
+    if shutil.which("git") is None:
+        pytest.skip("需要 git")
+        return
+    proc = subprocess.run(
+        ["git", "tag", "--sort=-version:refname"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    latest = proc.stdout.splitlines()[0] if proc.stdout.strip() else ""
+    if not latest:
+        pytest.skip("仓库没有 tag")
+        return
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    headings = re.findall(r"^## \[(\d+\.\d+\.\d+)\]", changelog, flags=re.M)
+    assert f"v{headings[0]}" == latest
