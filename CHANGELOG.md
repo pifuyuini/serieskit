@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.17.0] - 2026-09-21
+
+### 新增
+
+- CLI `series --robust-bands`（与 --smooth/--bands 互斥）
+- CLI `transform` 新增 `moving_average` / `moving_std` / `moving_median` 方法与 `--window`
+
 ## [0.16.0] - 2026-09-21
 
 ### 新增
