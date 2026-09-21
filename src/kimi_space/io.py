@@ -23,8 +23,19 @@ def load_csv(
 ) -> pd.DataFrame:
     """读取 CSV 并可校验必需列、将指定列强制转为数值类型。
 
-    path 为 "-" 时从标准输入读取。numeric_columns 中无法解析为数值的单元格
-    会抛出 ValueError。parse_dates 指定按日期解析的列。
+    Args:
+        path: CSV 文件路径；"-" 表示从标准输入读取。
+        required_columns: 必须存在的列；缺失时抛 ValueError。
+        numeric_columns: 强制转为数值类型的列；列缺失或含无法解析的
+            单元格时抛 ValueError。
+        parse_dates: 按日期解析的列（透传 pandas）。
+
+    Returns:
+        装载完成的 DataFrame。
+
+    Raises:
+        FileNotFoundError: 文件不存在。
+        ValueError: 列校验或数值强转失败。
     """
     df = pd.read_csv(
         sys.stdin if str(path) == "-" else path,
@@ -45,7 +56,17 @@ def load_csv(
 
 
 def numeric_summary(df: pd.DataFrame) -> pd.DataFrame:
-    """对 DataFrame 的全部数值列逐列计算描述性统计。"""
+    """对 DataFrame 的全部数值列逐列计算描述性统计。
+
+    Args:
+        df: 数据表。
+
+    Returns:
+        行索引为列名、列为统计量（count/mean/std/…/mad）的 DataFrame。
+
+    Raises:
+        ValueError: df 不含数值列。
+    """
     numeric = df.select_dtypes(include="number")
     if len(numeric.columns) == 0:
         msg = "DataFrame 不含数值列"
@@ -55,9 +76,17 @@ def numeric_summary(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def numeric_summary_by(df: pd.DataFrame, by: str | Iterable[str]) -> pd.DataFrame:
-    """按一列或多列分组后逐组计算数值列描述性统计（MultiIndex：组… × 列）。
+    """按一列或多列分组后逐组计算数值列描述性统计。
 
-    分组列本身不参与统计。
+    Args:
+        df: 数据表。
+        by: 分组列名或列名序列；分组列本身不参与统计。
+
+    Returns:
+        MultiIndex（分组列… × column）的统计表。
+
+    Raises:
+        ValueError: 分组列不存在，或某组不含数值列。
     """
     keys = [by] if isinstance(by, str) else list(by)
     missing = [k for k in keys if k not in df.columns]
