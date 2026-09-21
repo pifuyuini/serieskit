@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.16.0] - 2026-09-21
+
+### 新增
+
+- `plot_robust_bands` 稳健波动带（滑动中位数 ± k·MAD）
+
 ## [0.15.0] - 2026-09-21
 
 ### 新增

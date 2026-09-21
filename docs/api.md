@@ -59,6 +59,7 @@
 | `plot_correlation_heatmap(df, *, columns=None, ...)` | 相关系数热力图（格内标注） |
 | `plot_box(df, *, columns=None, ...)` | 多列箱线图 |
 | `plot_bands(values, *, window=20, num_std=2.0, ...)` | 滑动均值 ± kσ 波动带 |
+| `plot_robust_bands(values, *, window=20, num_mad=3.5, ...)` | 滑动中位数 ± k·MAD 稳健波动带 |
 | `plot_outliers(values, *, k=1.5, mask=None, ...)` | 折线 + 异常值散点标注 |
 
 ## Rust crate `kimi-space`
