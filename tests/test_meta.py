@@ -68,5 +68,6 @@ def test_api_md_lists_all_cli_subcommands():
         "percentile",
         "outliers",
         "minmax",
+        "mad",
     ]:
         assert cmd in api, f"api.md 缺少 Rust 子命令 {cmd}"

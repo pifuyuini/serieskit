@@ -11,7 +11,7 @@
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str = "用法: kimi-space-rs [summary|means|zscores|pct-change|log-returns|moving-average <w>|moving-std <w>|autocorr [lag]|percentile <q>|outliers [k]|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|pct-change|log-returns|moving-average <w>|moving-std <w>|autocorr [lag]|percentile <q>|outliers [k]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -104,6 +104,10 @@ fn main() -> ExitCode {
                 };
                 let p = kimi_space::percentile(&values, q).ok_or("空输入或 q 不在 [0, 100]")?;
                 println!("{p}");
+            }
+            "mad" => {
+                let m = kimi_space::median_abs_deviation(&values).ok_or("未读取到任何数值")?;
+                println!("{m}");
             }
             "means" => {
                 let a = kimi_space::mean(&values).ok_or("未读取到任何数值")?;

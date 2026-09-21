@@ -191,3 +191,19 @@ def autocorr(values: Iterable[float], lag: int = 1) -> float:
     if sa == 0.0 or sb == 0.0:
         return float("nan")
     return float(np.mean((a - a.mean()) * (b - b.mean())) / (sa * sb))
+
+
+def median_abs_deviation(values: Iterable[float]) -> float:
+    """中位数绝对偏差（MAD）：median(|x - median(x)|)，稳健的离散度度量。
+
+    NaN 会被剔除；空输入抛出 ValueError。
+
+    >>> median_abs_deviation([1, 2, 3, 4, 100])
+    1.0
+    """
+    arr = _as_clean_array(values)
+    if arr.size == 0:
+        msg = "values 为空"
+        raise ValueError(msg)
+    med = float(np.median(arr))
+    return float(np.median(np.abs(arr - med)))

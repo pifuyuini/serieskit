@@ -271,3 +271,17 @@ fn percentile_requires_q() {
     assert!(!ok);
     assert!(stderr.contains("需要 <q>"));
 }
+
+#[test]
+fn mad_subcommand() {
+    let (ok, stdout, _) = run_bin(&["mad"], "1 2 3 4 100");
+    assert!(ok);
+    assert_eq!(rows(&stdout), vec![1.0]);
+}
+
+#[test]
+fn mad_empty_fails() {
+    let (ok, _, stderr) = run_bin(&["mad"], "");
+    assert!(!ok);
+    assert!(stderr.contains("未读取到任何数值"));
+}

@@ -16,6 +16,7 @@ from kimi_space.stats import (
     autocorr,
     geometric_mean,
     harmonic_mean,
+    median_abs_deviation,
     moving_average,
     moving_std,
     zscores,
@@ -167,3 +168,9 @@ class TestRustParity:
         for q in [0, 10, 25, 50, 90, 100]:
             rust = rust_rows(rust_bin, ["percentile", str(q)], data)
             assert rust[0] == pytest.approx(np.percentile(data, q), rel=1e-12)
+
+    def test_mad_parity(self, rust_bin):
+        rng = np.random.default_rng(16)
+        data = rng.normal(size=400).tolist()
+        rust = rust_rows(rust_bin, ["mad"], data)
+        assert rust[0] == pytest.approx(median_abs_deviation(data), rel=1e-12)

@@ -6,6 +6,7 @@ from kimi_space.stats import (
     autocorr,
     geometric_mean,
     harmonic_mean,
+    median_abs_deviation,
     moving_average,
     moving_std,
     summarize,
@@ -204,3 +205,24 @@ class TestAutocorr:
             autocorr([1, 2, 3], lag=0)
         with pytest.raises(ValueError, match="lag"):
             autocorr([1, 2, 3], lag=3)
+
+
+class TestMedianAbsDeviation:
+    def test_known_value(self):
+        assert median_abs_deviation([1, 2, 3, 4, 100]) == pytest.approx(1.0)
+
+    def test_robust_to_outlier(self):
+        clean = [1.0, 2.0, 3.0, 4.0, 5.0]
+        dirty = [*clean, 1000.0]
+        assert median_abs_deviation(dirty) < 2.5  # MAD 几乎不动
+        assert np.std(dirty) > 100  # 而 std 被拉爆
+
+    def test_constant_series_is_zero(self):
+        assert median_abs_deviation([7.0, 7.0, 7.0]) == 0.0
+
+    def test_nan_dropped(self):
+        assert median_abs_deviation([1.0, 2.0, float("nan"), 3.0]) == pytest.approx(1.0)
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError, match="为空"):
+            median_abs_deviation([])

@@ -182,6 +182,24 @@ fn percentile_sorted(sorted: &[f64], q: f64) -> f64 {
     sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo as f64)
 }
 
+/// 中位数绝对偏差（MAD）：median(|x - median(x)|)，稳健的离散度度量；
+/// 空输入返回 None。
+///
+/// ```
+/// assert_eq!(kimi_space::median_abs_deviation(&[1.0, 2.0, 3.0, 4.0, 100.0]), Some(1.0));
+/// ```
+pub fn median_abs_deviation(values: &[f64]) -> Option<f64> {
+    if values.is_empty() {
+        return None;
+    }
+    let mut sorted = values.to_vec();
+    sorted.sort_by(f64::total_cmp);
+    let med = percentile_sorted(&sorted, 50.0);
+    let mut dev: Vec<f64> = values.iter().map(|v| (v - med).abs()).collect();
+    dev.sort_by(f64::total_cmp);
+    Some(percentile_sorted(&dev, 50.0))
+}
+
 /// IQR 栅栏法：返回布尔向量，true 表示落在 [Q1-k*IQR, Q3+k*IQR] 内的正常值；
 /// 空输入返回 None。
 ///
