@@ -3,7 +3,7 @@
 import math
 
 import numpy as np
-from hypothesis import given, settings
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from kimi_space.outliers import iqr_mask
@@ -60,6 +60,9 @@ class TestZscoresProperties:
     def test_normalized_when_not_constant(self, data):
         if len(set(data)) == 1:
             return
+        arr = np.asarray(data)
+        # 离散度远小于量级时（如 1e6 与 1e6-1e-10），float64 无法表达该尺度差异
+        assume(np.std(arr, ddof=1) > np.abs(arr).max() * 1e-9)
         z = zscores(data)
         assert abs(float(np.mean(z))) < 1e-6
 
