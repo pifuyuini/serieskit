@@ -166,7 +166,17 @@ pub fn moving_std(values: &[f64], window: usize) -> Option<Vec<f64>> {
 /// assert_eq!(kimi_space::moving_median(&[1.0, 100.0, 3.0], 2).unwrap(), vec![50.5, 51.5]);
 /// ```
 pub fn moving_median(values: &[f64], window: usize) -> Option<Vec<f64>> {
-    if window == 0 || window > values.len() {
+    moving_percentile(values, window, 50.0)
+}
+
+/// 滑动窗口分位数（线性插值，q ∈ [0, 100]，与 numpy 默认一致）；
+/// window 为 0、大于数据长度或 q 越界时返回 None。
+///
+/// ```
+/// assert_eq!(kimi_space::moving_percentile(&[1.0, 2.0, 3.0, 4.0], 2, 0.0).unwrap(), vec![1.0, 2.0, 3.0]);
+/// ```
+pub fn moving_percentile(values: &[f64], window: usize, q: f64) -> Option<Vec<f64>> {
+    if window == 0 || window > values.len() || !(0.0..=100.0).contains(&q) {
         return None;
     }
     Some(
@@ -175,7 +185,7 @@ pub fn moving_median(values: &[f64], window: usize) -> Option<Vec<f64>> {
             .map(|w| {
                 let mut sorted = w.to_vec();
                 sorted.sort_by(f64::total_cmp);
-                percentile_sorted(&sorted, 50.0)
+                percentile_sorted(&sorted, q)
             })
             .collect(),
     )

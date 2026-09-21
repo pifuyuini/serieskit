@@ -21,6 +21,7 @@ from kimi_space.stats import (
     median_abs_deviation,
     moving_average,
     moving_median,
+    moving_percentile,
     moving_std,
     summarize,
     zscores,
@@ -212,6 +213,13 @@ class TestRustParity:
         data = rng.normal(size=300).tolist()
         rust = rust_rows(rust_bin, ["moving-median", "6"], data)
         assert_rows_close(rust, moving_median(data, 6).tolist())
+
+    def test_moving_percentile_parity(self, rust_bin):
+        rng = np.random.default_rng(22)
+        data = rng.normal(size=300).tolist()
+        for q in [10, 50, 90]:
+            rust = rust_rows(rust_bin, ["moving-percentile", "8", str(q)], data)
+            assert_rows_close(rust, moving_percentile(data, 8, q).tolist())
 
     def test_summary_json_parity(self, rust_bin):
         rng = np.random.default_rng(21)

@@ -362,3 +362,24 @@ fn moving_median_requires_window() {
     assert!(!ok);
     assert!(stderr.contains("需要 <window>"));
 }
+
+#[test]
+fn moving_percentile_subcommand() {
+    let (ok, stdout, _) = run_bin(&["moving-percentile", "3", "100"], "1 5 2 4");
+    assert!(ok);
+    assert_eq!(rows(&stdout), vec![5.0, 5.0]);
+}
+
+#[test]
+fn moving_percentile_requires_two_args() {
+    let (ok, _, stderr) = run_bin(&["moving-percentile", "3"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("两个参数"));
+}
+
+#[test]
+fn moving_percentile_q_out_of_range_fails() {
+    let (ok, _, stderr) = run_bin(&["moving-percentile", "2", "101"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("越界"));
+}

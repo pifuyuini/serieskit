@@ -11,7 +11,7 @@
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|robust-zscores|pct-change|diff|log-returns|moving-average <w>|moving-std <w>|moving-median <w>|autocorr [lag]|percentile <q>|outliers [k]|mad-outliers [t]|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|robust-zscores|pct-change|diff|log-returns|moving-average <w>|moving-std <w>|moving-median <w>|moving-percentile <w> <q>|autocorr [lag]|percentile <q>|outliers [k]|mad-outliers [t]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -122,6 +122,19 @@ fn main() -> ExitCode {
                 };
                 let out = kimi_space::moving_median(&values, window)
                     .ok_or("window 为 0 或超过数据长度")?;
+                print_rows(&out);
+            }
+            "moving-percentile" => {
+                let (Some(window), Some(q)) = (
+                    args.get(1).and_then(|s| s.parse::<usize>().ok()),
+                    args.get(2).and_then(|s| s.parse::<f64>().ok()),
+                ) else {
+                    return Err(format!(
+                        "moving-percentile 需要 <window> <q> 两个参数\n{USAGE}"
+                    ));
+                };
+                let out = kimi_space::moving_percentile(&values, window, q)
+                    .ok_or("window 为 0、超过数据长度或 q 越界")?;
                 print_rows(&out);
             }
             "autocorr" => {
