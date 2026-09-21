@@ -3,6 +3,7 @@ import pytest
 
 from kimi_space.stats import (
     SummaryStats,
+    autocorr,
     geometric_mean,
     harmonic_mean,
     moving_average,
@@ -157,3 +158,30 @@ class TestMeans:
         g = geometric_mean(data)
         a = float(np.mean(data))
         assert h <= g <= a
+
+
+class TestAutocorr:
+    def test_linear_trend_is_one(self):
+        assert autocorr([1, 2, 3, 4, 5]) == pytest.approx(1.0)
+
+    def test_alternating_lag1_is_negative_one(self):
+        data = [1.0, -1.0] * 5
+        assert autocorr(data, lag=1) == pytest.approx(-1.0)
+
+    def test_alternating_lag2_is_positive_one(self):
+        data = [1.0, -1.0] * 5
+        assert autocorr(data, lag=2) == pytest.approx(1.0)
+
+    def test_noise_autocorr_is_small(self):
+        rng = np.random.default_rng(0)
+        r = autocorr(rng.normal(size=2000))
+        assert abs(r) < 0.1
+
+    def test_constant_series_is_nan(self):
+        assert np.isnan(autocorr([7.0, 7.0, 7.0]))
+
+    def test_invalid_lag_raises(self):
+        with pytest.raises(ValueError, match="lag"):
+            autocorr([1, 2, 3], lag=0)
+        with pytest.raises(ValueError, match="lag"):
+            autocorr([1, 2, 3], lag=3)

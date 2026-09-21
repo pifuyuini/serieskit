@@ -153,3 +153,22 @@ def harmonic_mean(values: Iterable[float]) -> float:
         msg = "调和平均要求全部为正数"
         raise ValueError(msg)
     return float(scipy_stats.hmean(arr))
+
+
+def autocorr(values: Iterable[float], lag: int = 1) -> float:
+    """lag-k 自相关系数：x[:-k] 与 x[k:] 的 Pearson 相关。
+
+    lag 必须满足 1 <= lag < len(values)；切片方差为 0 时返回 NaN。
+
+    >>> round(autocorr([1, 2, 3, 4, 5]), 6)
+    1.0
+    """
+    arr = np.asarray(list(values), dtype=float).ravel()
+    if not 1 <= lag < arr.size:
+        msg = f"lag 需满足 1 <= lag < {arr.size}，收到 {lag}"
+        raise ValueError(msg)
+    a, b = arr[:-lag], arr[lag:]
+    sa, sb = float(np.std(a)), float(np.std(b))
+    if sa == 0.0 or sb == 0.0:
+        return float("nan")
+    return float(np.mean((a - a.mean()) * (b - b.mean())) / (sa * sb))

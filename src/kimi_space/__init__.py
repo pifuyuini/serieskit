@@ -8,6 +8,7 @@ from kimi_space.outliers import (
 )
 from kimi_space.stats import (
     SummaryStats,
+    autocorr,
     geometric_mean,
     harmonic_mean,
     moving_average,
@@ -21,6 +22,7 @@ __version__ = "0.3.0"
 
 __all__ = [
     "SummaryStats",
+    "autocorr",
     "geometric_mean",
     "harmonic_mean",
     "iqr_mask",
