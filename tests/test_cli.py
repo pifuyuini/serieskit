@@ -166,6 +166,31 @@ class TestSeries:
         assert code == 1
         assert "仅支持单列" in capsys.readouterr().err
 
+    def test_robust_bands_option(self, csv_path, tmp_path):
+        out = tmp_path / "rb.png"
+        code = main(
+            ["series", str(csv_path), "a", "--robust-bands", "2", "--output", str(out)]
+        )
+        assert code == 0
+        assert out.exists() and out.stat().st_size > 0
+
+    def test_robust_bands_excludes_smooth(self, csv_path, tmp_path):
+        out = tmp_path / "x.png"
+        with pytest.raises(SystemExit):
+            main(
+                [
+                    "series",
+                    str(csv_path),
+                    "a",
+                    "--smooth",
+                    "2",
+                    "--robust-bands",
+                    "2",
+                    "--output",
+                    str(out),
+                ]
+            )
+
 
 class TestHeatmap:
     def test_saves_output(self, csv_path, tmp_path):

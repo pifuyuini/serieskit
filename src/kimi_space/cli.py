@@ -23,6 +23,7 @@ from kimi_space.plotting import (
     plot_histogram,
     plot_multi_series,
     plot_outliers,
+    plot_robust_bands,
     plot_series,
 )
 from kimi_space.stats import autocorr, median_abs_deviation, zscores
@@ -77,6 +78,9 @@ def build_parser() -> argparse.ArgumentParser:
     g_series = p_series.add_mutually_exclusive_group()
     g_series.add_argument("--smooth", type=int, help="滑动平均窗口，如 10")
     g_series.add_argument("--bands", type=int, help="波动带窗口（MA±2σ），如 20")
+    g_series.add_argument(
+        "--robust-bands", type=int, help="稳健波动带窗口（中位数±3.5·MAD）"
+    )
     p_series.add_argument("--output", help="输出图片路径（默认 <列名>_series.png）")
     p_series.set_defaults(func=_cmd_series)
 
@@ -206,11 +210,15 @@ def _cmd_series(args: argparse.Namespace) -> int:
     output = args.output or f"{args.column.replace(',', '_')}_series.png"
     x = df[args.x] if args.x else None
     if len(columns) > 1:
-        if args.smooth or args.bands:
-            msg = "--smooth/--bands 仅支持单列"
+        if args.smooth or args.bands or args.robust_bands:
+            msg = "--smooth/--bands/--robust-bands 仅支持单列"
             raise ValueError(msg)
         ax = plot_multi_series(
             {col: df[col] for col in columns}, x=x, title=args.column
+        )
+    elif args.robust_bands:
+        ax = plot_robust_bands(
+            df[args.column], window=args.robust_bands, x=x, title=args.column
         )
     elif args.bands:
         ax = plot_bands(df[args.column], window=args.bands, x=x, title=args.column)
