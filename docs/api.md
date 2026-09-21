@@ -62,7 +62,7 @@
 内核函数（均返回 `Option`/`Vec`，不 panic）：
 `mean`、`sample_std`、`weighted_mean`、`geometric_mean`、`harmonic_mean`、
 `moving_average`、`moving_std`、`zscores`、`percentile`、`skew`、`kurtosis`、`summarize`、
-`iqr_mask`、`minmax_normalize`、`pct_change`、`log_returns`、`autocorr`、`median_abs_deviation`。
+`iqr_mask`、`mad_mask`、`minmax_normalize`、`pct_change`、`log_returns`、`autocorr`、`median_abs_deviation`。
 
 二进制 `kimi-space-rs`（stdin 读数，stdout 输出）：
 
@@ -77,6 +77,7 @@
 | `autocorr [lag]` | 单个自相关系数 |
 | `percentile <q>` | 单个分位数（q ∈ [0, 100]） |
 | `outliers [k]` | 逐行异常值（计数在 stderr） |
+| `mad-outliers [t]` | 逐行 MAD 法异常值（默认阈值 3.5） |
 | `minmax <lo> <hi>` | 逐行归一化结果 |
 | `-h` / `--help` | 用法说明 |
 | `-V` / `--version` | 版本号 |

@@ -11,7 +11,7 @@
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|pct-change|log-returns|moving-average <w>|moving-std <w>|autocorr [lag]|percentile <q>|outliers [k]|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|pct-change|log-returns|moving-average <w>|moving-std <w>|autocorr [lag]|percentile <q>|outliers [k]|mad-outliers [t]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -130,6 +130,23 @@ fn main() -> ExitCode {
                     None => 1.5,
                 };
                 let mask = kimi_space::iqr_mask(&values, k).ok_or("未读取到任何数值")?;
+                let out: Vec<f64> = values
+                    .iter()
+                    .zip(&mask)
+                    .filter(|(_, m)| !**m)
+                    .map(|(v, _)| *v)
+                    .collect();
+                print_rows(&out);
+                eprintln!("# {} 个异常值", out.len());
+            }
+            "mad-outliers" => {
+                let threshold = match args.get(1) {
+                    Some(s) => s
+                        .parse::<f64>()
+                        .map_err(|_| format!("无法解析阈值: {s:?}"))?,
+                    None => 3.5,
+                };
+                let mask = kimi_space::mad_mask(&values, threshold).ok_or("未读取到任何数值")?;
                 let out: Vec<f64> = values
                     .iter()
                     .zip(&mask)

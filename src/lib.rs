@@ -200,6 +200,32 @@ pub fn median_abs_deviation(values: &[f64]) -> Option<f64> {
     Some(percentile_sorted(&dev, 50.0))
 }
 
+/// MAD 修正 z-score 法（Iglewicz–Hoaglin）：|0.6745·(x-median)/MAD| <= threshold
+/// 视为正常值；MAD 为 0 时仅等于中位数的值正常。空输入返回 None。
+///
+/// ```
+/// let mask = kimi_space::mad_mask(&[1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0], 3.5).unwrap();
+/// assert_eq!(mask[6], false);
+/// ```
+pub fn mad_mask(values: &[f64], threshold: f64) -> Option<Vec<bool>> {
+    if values.is_empty() {
+        return None;
+    }
+    let mut sorted = values.to_vec();
+    sorted.sort_by(f64::total_cmp);
+    let med = percentile_sorted(&sorted, 50.0);
+    let mad = median_abs_deviation(values)?;
+    if mad == 0.0 {
+        return Some(values.iter().map(|v| *v == med).collect());
+    }
+    Some(
+        values
+            .iter()
+            .map(|v| (0.6745 * (v - med)).abs() / mad <= threshold)
+            .collect(),
+    )
+}
+
 /// IQR 栅栏法：返回布尔向量，true 表示落在 [Q1-k*IQR, Q3+k*IQR] 内的正常值；
 /// 空输入返回 None。
 ///
@@ -671,5 +697,31 @@ mod tests {
         let data = [3.0, 1.0, 4.0, 1.0, 5.0];
         let r = moving_std(&data, 5).unwrap();
         assert_close(&r, &[sample_std(&data).unwrap()]);
+    }
+
+    #[test]
+    fn mad_mask_flags_extreme() {
+        let mask = mad_mask(&[1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0], 3.5).unwrap();
+        assert_eq!(mask, vec![true, true, true, true, true, true, false]);
+    }
+
+    #[test]
+    fn mad_mask_zero_mad_only_median_normal() {
+        let mask = mad_mask(&[7.0, 7.0, 7.0, 9.0], 3.5).unwrap();
+        assert_eq!(mask, vec![true, true, true, false]);
+    }
+
+    #[test]
+    fn mad_mask_empty_is_none() {
+        assert_eq!(mad_mask(&[], 3.5), None);
+    }
+
+    #[test]
+    fn median_abs_deviation_basic() {
+        assert_eq!(
+            median_abs_deviation(&[1.0, 2.0, 3.0, 4.0, 100.0]),
+            Some(1.0)
+        );
+        assert_eq!(median_abs_deviation(&[]), None);
     }
 }

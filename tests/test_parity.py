@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 from scipy import stats as scipy_stats
 
+from kimi_space.outliers import mad_outliers
 from kimi_space.stats import (
     autocorr,
     geometric_mean,
@@ -177,3 +178,10 @@ class TestRustParity:
         data = rng.normal(size=400).tolist()
         rust = rust_rows(rust_bin, ["mad"], data)
         assert rust[0] == pytest.approx(median_abs_deviation(data), rel=1e-12)
+
+    def test_mad_outliers_parity(self, rust_bin):
+        rng = np.random.default_rng(17)
+        data = rng.normal(size=300).tolist() + [50.0, -45.0]
+        rust = rust_rows(rust_bin, ["mad-outliers"], data)
+        expected = mad_outliers(data).tolist()
+        assert_rows_close(sorted(rust), sorted(expected))

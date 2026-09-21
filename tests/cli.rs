@@ -285,3 +285,25 @@ fn mad_empty_fails() {
     assert!(!ok);
     assert!(stderr.contains("未读取到任何数值"));
 }
+
+#[test]
+fn mad_outliers_subcommand() {
+    let (ok, stdout, stderr) = run_bin(&["mad-outliers"], "1 2 2.5 3 3.5 4 100");
+    assert!(ok);
+    assert_eq!(rows(&stdout), vec![100.0]);
+    assert!(stderr.contains("1 个异常值"));
+}
+
+#[test]
+fn mad_outliers_custom_threshold() {
+    let (ok, stdout, _) = run_bin(&["mad-outliers", "100"], "1 2 2.5 3 3.5 4 100");
+    assert!(ok);
+    assert!(stdout.trim().is_empty());
+}
+
+#[test]
+fn mad_outliers_bad_threshold_fails() {
+    let (ok, _, stderr) = run_bin(&["mad-outliers", "abc"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("无法解析阈值"));
+}
