@@ -121,6 +121,16 @@ fn unknown_subcommand_fails() {
 }
 
 #[test]
+fn help_flag_prints_usage() {
+    for flag in ["-h", "--help"] {
+        let (ok, stdout, _) = run_bin(&[flag], "");
+        assert!(ok);
+        assert!(stdout.contains("用法"));
+        assert!(stdout.contains("summary"));
+    }
+}
+
+#[test]
 fn outliers_subcommand() {
     let (ok, stdout, stderr) = run_bin(&["outliers"], "1 2 2.5 3 3.5 4 100");
     assert!(ok);

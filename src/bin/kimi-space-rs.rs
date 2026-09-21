@@ -38,6 +38,11 @@ fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let command = args.first().map(String::as_str).unwrap_or("summary");
 
+    if matches!(command, "-h" | "--help") {
+        println!("{USAGE}");
+        return ExitCode::SUCCESS;
+    }
+
     let run = || -> Result<(), String> {
         let values = read_values()?;
         match command {
