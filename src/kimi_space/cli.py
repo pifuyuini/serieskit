@@ -100,6 +100,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="pearson",
         help="相关系数方法（默认 pearson）",
     )
+    p_corr.add_argument("--output", help="将相关矩阵保存为 CSV 文件")
     p_corr.set_defaults(func=_cmd_corr)
 
     p_out = sub.add_parser("outliers", help="检测指定数值列的异常值")
@@ -241,8 +242,13 @@ def _cmd_corr(args: argparse.Namespace) -> int:
         if args.columns
         else df.select_dtypes(include="number")
     )
+    corr = data.corr(method=args.method)
+    if args.output:
+        corr.to_csv(args.output)
+        print(args.output)
+        return 0
     with pd.option_context("display.float_format", lambda v: f"{v:.4f}"):
-        print(data.corr(method=args.method).to_string())
+        print(corr.to_string())
     return 0
 
 

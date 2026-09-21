@@ -334,6 +334,15 @@ class TestCorr:
         assert main(["corr", str(csv_path), "--columns", "nope"]) == 1
         assert "error" in capsys.readouterr().err
 
+    def test_output_writes_csv(self, csv_path, tmp_path, capsys):
+        import pandas as pd
+
+        out = tmp_path / "corr.csv"
+        assert main(["corr", str(csv_path), "--output", str(out)]) == 0
+        assert str(out) in capsys.readouterr().out
+        saved = pd.read_csv(out, index_col=0)
+        assert saved.loc["a", "b"] == pytest.approx(1.0)
+
 
 class TestAutocorr:
     def test_default_lag(self, csv_path, capsys):
