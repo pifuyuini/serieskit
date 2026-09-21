@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.15.0] - 2026-09-21
+
+### 新增
+
+- `moving_median` 滑动中位数（双侧）；Rust `moving-median <w>` 子命令
+
 ## [0.14.0] - 2026-09-21
 
 ### 新增
