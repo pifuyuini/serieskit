@@ -12,9 +12,11 @@ from kimi_space.plotting import (
     plot_histogram,
     plot_multi_series,
     plot_outliers,
+    plot_quantile_bands,
     plot_robust_bands,
     plot_series,
 )
+from kimi_space.stats import moving_percentile
 
 
 @pytest.fixture(autouse=True)
@@ -181,6 +183,40 @@ class TestPlotRobustBands:
     def test_title_is_set(self):
         ax = plot_robust_bands([1.0, 2.0, 3.0], window=2, title="稳健带")
         assert ax.get_title() == "稳健带"
+
+
+class TestPlotQuantileBands:
+    def test_draws_lines_and_band(self):
+        rng = np.random.default_rng(0)
+        data = 10 + rng.normal(size=100).cumsum() * 0.1
+        ax = plot_quantile_bands(data, window=10)
+        assert len(ax.lines) == 2  # series + median
+        assert len(ax.collections) == 1
+
+    def test_band_bounds_match_moving_percentile(self):
+        data = [3.0, 1.0, 4.0, 1.0, 5.0, 9.0, 2.0]
+        window = 3
+        ax = plot_quantile_bands(data, window=window, q_lo=0, q_hi=100)
+        path = ax.collections[0].get_paths()[0]
+        lo = moving_percentile(data, window, 0)
+        hi = moving_percentile(data, window, 100)
+        verts = {tuple(v) for v in np.round(path.vertices, 9)}
+        for i in range(len(lo)):
+            x = float(window - 1 + i)
+            assert (x, lo[i]) in verts, f"下界点缺失 i={i}"
+            assert (x, hi[i]) in verts, f"上界点缺失 i={i}"
+
+    def test_invalid_quantile_range_raises(self):
+        with pytest.raises(ValueError, match="q_lo < q_hi"):
+            plot_quantile_bands([1.0, 2.0], window=2, q_lo=90, q_hi=10)
+
+    def test_x_length_mismatch_raises(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            plot_quantile_bands([1.0, 2.0], window=2, x=[1.0])
+
+    def test_title_is_set(self):
+        ax = plot_quantile_bands([1.0, 2.0, 3.0], window=2, title="分位带")
+        assert ax.get_title() == "分位带"
 
 
 class TestPlotMultiSeries:

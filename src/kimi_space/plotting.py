@@ -17,6 +17,7 @@ from kimi_space.stats import (
     median_abs_deviation,
     moving_average,
     moving_median,
+    moving_percentile,
     moving_std,
 )
 
@@ -233,6 +234,64 @@ def plot_robust_bands(
         med + num_mad * mad,
         alpha=0.2,
         label=f"±{num_mad}·MAD",
+    )
+    if title:
+        ax.set_title(title)
+    ax.legend()
+    return ax
+
+
+def plot_quantile_bands(
+    values: Iterable[float],
+    *,
+    window: int = 20,
+    q_lo: float = 10.0,
+    q_hi: float = 90.0,
+    x: Iterable[float] | None = None,
+    ax: Axes | None = None,
+    title: str | None = None,
+) -> Axes:
+    """绘制序列及滑动分位数带（默认 P10–P90），中心线为滑动中位数。
+
+    与 plot_bands / plot_robust_bands 对照：带由滑动分位数直接给出，
+    不假设任何分布形态。
+
+    Args:
+        values: 数据序列。
+        window: 滑动窗口，默认 20（须 >= 1）。
+        q_lo: 下分位点，默认 10。
+        q_hi: 上分位点，默认 90（须满足 q_lo < q_hi <= 100）。
+        x: 横轴取值；默认行号。长度必须与 values 一致。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+
+    Returns:
+        绘制完成的 Axes。
+
+    Raises:
+        ValueError: 分位点或横轴非法。
+    """
+    if not 0.0 <= q_lo < q_hi <= 100.0:
+        msg = f"须满足 0 <= q_lo < q_hi <= 100，收到 ({q_lo}, {q_hi})"
+        raise ValueError(msg)
+    ax = _get_ax(ax)
+    arr = np.asarray(list(values), dtype=float)
+    med = moving_median(arr, window)
+    lo = moving_percentile(arr, window, q_lo)
+    hi = moving_percentile(arr, window, q_hi)
+    xs = np.arange(arr.size) if x is None else np.asarray(list(x))
+    if xs.size != arr.size:
+        msg = f"x 与 values 长度不一致: {xs.size} vs {arr.size}"
+        raise ValueError(msg)
+    offset = window - 1
+    ax.plot(xs, arr, alpha=0.4, label="series")
+    ax.plot(xs[offset:], med, label=f"median{window}")
+    ax.fill_between(
+        xs[offset:],
+        lo,
+        hi,
+        alpha=0.2,
+        label=f"P{q_lo:g}–P{q_hi:g}",
     )
     if title:
         ax.set_title(title)
