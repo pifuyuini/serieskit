@@ -58,6 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_hist.add_argument("csv", help="CSV 文件路径")
     p_hist.add_argument("column", help="数值列名")
     p_hist.add_argument("--bins", type=int, default=20, help="直方图分箱数（默认 20）")
+    p_hist.add_argument("--kde", action="store_true", help="叠加核密度估计曲线")
     p_hist.add_argument("--output", help="输出图片路径（默认 <列名>_hist.png）")
     p_hist.set_defaults(func=_cmd_hist)
 
@@ -160,7 +161,9 @@ def _cmd_hist(args: argparse.Namespace) -> int:
     df = load_csv(args.csv, numeric_columns=[args.column])
     apply_style()
     output = args.output or f"{args.column}_hist.png"
-    ax = plot_histogram(df[args.column], bins=args.bins, title=args.column)
+    ax = plot_histogram(
+        df[args.column], bins=args.bins, kde=args.kde, title=args.column
+    )
     _save(ax, output)
     return 0
 

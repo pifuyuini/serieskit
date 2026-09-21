@@ -74,6 +74,11 @@ class TestHist:
         assert main(["hist", str(csv_path), "name"]) == 1
         assert "error" in capsys.readouterr().err
 
+    def test_kde_flag(self, csv_path, tmp_path):
+        out = tmp_path / "kde.png"
+        assert main(["hist", str(csv_path), "a", "--kde", "--output", str(out)]) == 0
+        assert out.exists() and out.stat().st_size > 0
+
 
 class TestSeries:
     def test_saves_default_output(self, csv_path, tmp_path, monkeypatch, capsys):
