@@ -10,6 +10,7 @@ from kimi_space.plotting import (
     plot_box,
     plot_correlation_heatmap,
     plot_histogram,
+    plot_multi_series,
     plot_outliers,
     plot_series,
 )
@@ -136,6 +137,34 @@ class TestPlotOutliers:
     def test_mask_length_mismatch_raises(self):
         with pytest.raises(ValueError, match="长度不一致"):
             plot_outliers([1.0, 2.0], mask=[True])
+
+
+class TestPlotMultiSeries:
+    def test_draws_all_series_with_labels(self):
+        ax = plot_multi_series({"a": [1.0, 2.0], "b": [2.0, 1.0]})
+        assert len(ax.lines) == 2
+        assert {line.get_label() for line in ax.lines} == {"a", "b"}
+        assert ax.get_legend() is not None
+
+    def test_custom_x(self):
+        ax = plot_multi_series({"a": [1.0, 2.0]}, x=[10, 20])
+        np.testing.assert_array_equal(ax.lines[0].get_xdata(), [10, 20])
+
+    def test_empty_mapping_raises(self):
+        with pytest.raises(ValueError, match="为空"):
+            plot_multi_series({})
+
+    def test_mismatched_lengths_raise(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            plot_multi_series({"a": [1.0, 2.0], "b": [1.0]})
+
+    def test_x_length_mismatch_raises(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            plot_multi_series({"a": [1.0, 2.0]}, x=[1.0])
+
+    def test_title_is_set(self):
+        ax = plot_multi_series({"a": [1.0, 2.0]}, title="对比")
+        assert ax.get_title() == "对比"
 
 
 class TestPlotBands:

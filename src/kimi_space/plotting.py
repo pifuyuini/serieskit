@@ -16,7 +16,7 @@ from kimi_space.outliers import iqr_mask
 from kimi_space.stats import moving_average, moving_std
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Mapping, Sequence
 
     from matplotlib.axes import Axes
 
@@ -163,6 +163,48 @@ def plot_outliers(
     if not m.all():
         idx = np.flatnonzero(~m)
         ax.scatter(idx, arr[idx], color="C3", zorder=3, label=f"outliers ({idx.size})")
+    if title:
+        ax.set_title(title)
+    ax.legend()
+    return ax
+
+
+def plot_multi_series(
+    series: Mapping[str, Iterable[float]],
+    *,
+    x: Iterable[float] | None = None,
+    ax: Axes | None = None,
+    title: str | None = None,
+) -> Axes:
+    """在同一坐标系绘制多条命名序列，便于对比。
+
+    Args:
+        series: {名称: 序列} 映射，绘制顺序即映射迭代顺序。
+        x: 公共横轴；默认行号。长度必须与每条序列一致。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+
+    Returns:
+        绘制完成的 Axes。
+
+    Raises:
+        ValueError: series 为空，或任一序列与 x 长度不一致。
+    """
+    if not series:
+        msg = "series 为空"
+        raise ValueError(msg)
+    ax = _get_ax(ax)
+    arrays = {name: np.asarray(list(v), dtype=float) for name, v in series.items()}
+    n = next(iter(arrays.values())).size
+    xs = np.arange(n) if x is None else np.asarray(list(x))
+    if xs.size != n:
+        msg = f"x 与序列长度不一致: {xs.size} vs {n}"
+        raise ValueError(msg)
+    for name, arr in arrays.items():
+        if arr.size != n:
+            msg = f"序列长度不一致: {name} 为 {arr.size}，预期 {n}"
+            raise ValueError(msg)
+        ax.plot(xs, arr, label=name)
     if title:
         ax.set_title(title)
     ax.legend()
