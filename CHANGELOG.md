@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.19.0] - 2026-09-21
+
+### 新增
+
+- `moving_percentile` 滑动任意分位数（双侧，moving_median 归并为其特例）；Rust `moving-percentile <w> <q>` 子命令
+
 ## [0.18.0] - 2026-09-21
 
 ### 新增
