@@ -71,6 +71,7 @@
 | `moving-average <w>` | 逐行滑动平均 |
 | `moving-std <w>` | 逐行滑动样本标准差 |
 | `autocorr [lag]` | 单个自相关系数 |
+| `percentile <q>` | 单个分位数（q ∈ [0, 100]） |
 | `outliers [k]` | 逐行异常值（计数在 stderr） |
 | `minmax <lo> <hi>` | 逐行归一化结果 |
 | `-h` / `--help` | 用法说明 |

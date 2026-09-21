@@ -65,6 +65,7 @@ def test_api_md_lists_all_cli_subcommands():
         "moving-average",
         "moving-std",
         "autocorr",
+        "percentile",
         "outliers",
         "minmax",
     ]:

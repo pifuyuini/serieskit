@@ -160,3 +160,10 @@ class TestRustParity:
         data = rng.normal(size=300).tolist()
         rust = rust_rows(rust_bin, ["moving-std", "7"], data)
         assert_rows_close(rust, moving_std(data, 7).tolist())
+
+    def test_percentile_parity(self, rust_bin):
+        rng = np.random.default_rng(15)
+        data = rng.normal(size=400).tolist()
+        for q in [0, 10, 25, 50, 90, 100]:
+            rust = rust_rows(rust_bin, ["percentile", str(q)], data)
+            assert rust[0] == pytest.approx(np.percentile(data, q), rel=1e-12)

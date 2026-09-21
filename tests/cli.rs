@@ -250,3 +250,24 @@ fn moving_std_window_one_fails() {
     assert!(!ok);
     assert!(stderr.contains("window"));
 }
+
+#[test]
+fn percentile_subcommand() {
+    let (ok, stdout, _) = run_bin(&["percentile", "25"], "1 2 3 4 5 6 7 8 9 10");
+    assert!(ok);
+    assert!((rows(&stdout)[0] - 3.25).abs() < 1e-12);
+}
+
+#[test]
+fn percentile_out_of_range_fails() {
+    let (ok, _, stderr) = run_bin(&["percentile", "101"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("[0, 100]"));
+}
+
+#[test]
+fn percentile_requires_q() {
+    let (ok, _, stderr) = run_bin(&["percentile"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("需要 <q>"));
+}
