@@ -2,6 +2,19 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.5.0] - 2026-09-21
+
+### 新增
+
+- 绘图
+  - `plot_bands` 滑动均值 ± kσ 波动带；CLI `series --bands N`
+  - `apply_style` 增加 CJK 字体回退链与 unicode_minus 修正（中文标题不再豆腐块）
+- Rust
+  - `kimi-space-rs` 支持 `-V`/`--version`
+- 测试与工程化
+  - README/CLI 与 api.md 文档一致性元测试（并修复其暴露的四处文档漂移）
+  - 基准增加 moving_std 双侧计时；演示报告新增波动带图
+
 ## [0.4.0] - 2026-09-21
 
 ### 新增
