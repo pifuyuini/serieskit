@@ -13,7 +13,12 @@ import pandas as pd
 from scipy import stats as scipy_stats
 
 from kimi_space.outliers import iqr_mask, mad_mask, zscore_mask
-from kimi_space.stats import moving_average, moving_std
+from kimi_space.stats import (
+    median_abs_deviation,
+    moving_average,
+    moving_median,
+    moving_std,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -177,6 +182,58 @@ def plot_outliers(
     if not m.all():
         idx = np.flatnonzero(~m)
         ax.scatter(idx, arr[idx], color="C3", zorder=3, label=f"outliers ({idx.size})")
+    if title:
+        ax.set_title(title)
+    ax.legend()
+    return ax
+
+
+def plot_robust_bands(
+    values: Iterable[float],
+    *,
+    window: int = 20,
+    num_mad: float = 3.5,
+    x: Iterable[float] | None = None,
+    ax: Axes | None = None,
+    title: str | None = None,
+) -> Axes:
+    """绘制序列及其滑动中位数 ± num_mad 倍全局 MAD 的稳健波动带。
+
+    与 plot_bands（均值 ± kσ）对照：中心为滑动中位数，带宽为全局
+    中位数绝对偏差的倍数，对离群点不敏感。
+
+    Args:
+        values: 数据序列。
+        window: 中位数滑动窗口，默认 20（须 >= 1）。
+        num_mad: 带宽的 MAD 倍数，默认 3.5。
+        x: 横轴取值；默认行号。长度必须与 values 一致。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+
+    Returns:
+        绘制完成的 Axes。
+
+    Raises:
+        ValueError: x 长度不一致，或 window 非法。
+    """
+    ax = _get_ax(ax)
+    arr = np.asarray(list(values), dtype=float)
+    med = moving_median(arr, window)
+    mad = median_abs_deviation(arr)
+    xs = np.arange(arr.size) if x is None else np.asarray(list(x))
+    if xs.size != arr.size:
+        msg = f"x 与 values 长度不一致: {xs.size} vs {arr.size}"
+        raise ValueError(msg)
+    offset = window - 1
+    ax.plot(xs, arr, alpha=0.4, label="series")
+    ax.plot(xs[offset:], med, label=f"median{window}")
+    ax.fill_between(
+        xs[offset:],
+        med - num_mad * mad,
+        med + num_mad * mad,
+        alpha=0.2,
+        label=f"±{num_mad}·MAD",
+    )
     if title:
         ax.set_title(title)
     ax.legend()

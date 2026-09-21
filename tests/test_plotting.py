@@ -12,6 +12,7 @@ from kimi_space.plotting import (
     plot_histogram,
     plot_multi_series,
     plot_outliers,
+    plot_robust_bands,
     plot_series,
 )
 
@@ -154,6 +155,32 @@ class TestPlotOutliers:
     def test_unknown_method_raises(self):
         with pytest.raises(ValueError, match="未知 method"):
             plot_outliers([1.0, 2.0], method="nope")
+
+
+class TestPlotRobustBands:
+    def test_draws_lines_and_band(self):
+        rng = np.random.default_rng(0)
+        data = 10 + rng.normal(size=100).cumsum() * 0.1
+        ax = plot_robust_bands(data, window=10)
+        assert len(ax.lines) == 2  # series + median
+        assert len(ax.collections) == 1
+
+    def test_band_center_is_median(self):
+        ax = plot_robust_bands([1.0, 100.0, 3.0, 4.0, 5.0], window=2)
+        np.testing.assert_allclose(ax.lines[1].get_ydata(), [50.5, 51.5, 3.5, 4.5])
+
+    def test_constant_data_band_is_flat(self):
+        ax = plot_robust_bands([5.0] * 30, window=5)
+        ys = ax.collections[0].get_paths()[0].vertices[:, 1]
+        np.testing.assert_allclose(np.abs(ys - 5.0), 0.0, atol=1e-12)
+
+    def test_x_length_mismatch_raises(self):
+        with pytest.raises(ValueError, match="长度不一致"):
+            plot_robust_bands([1.0, 2.0], window=2, x=[1.0])
+
+    def test_title_is_set(self):
+        ax = plot_robust_bands([1.0, 2.0, 3.0], window=2, title="稳健带")
+        assert ax.get_title() == "稳健带"
 
 
 class TestPlotMultiSeries:
