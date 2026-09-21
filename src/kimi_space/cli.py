@@ -21,6 +21,7 @@ from kimi_space.plotting import (
     plot_box,
     plot_correlation_heatmap,
     plot_histogram,
+    plot_multi_series,
     plot_outliers,
     plot_series,
 )
@@ -68,9 +69,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_hist.add_argument("--output", help="输出图片路径（默认 <列名>_hist.png）")
     p_hist.set_defaults(func=_cmd_hist)
 
-    p_series = sub.add_parser("series", help="绘制数值列折线图（可选滑动平均）并保存")
+    p_series = sub.add_parser("series", help="绘制数值列折线图并保存")
     p_series.add_argument("csv", help="CSV 文件路径")
-    p_series.add_argument("column", help="数值列名")
+    p_series.add_argument("column", help="数值列名（多列用逗号分隔）")
     p_series.add_argument("--x", help="作为横轴的列名（默认行号）")
     g_series = p_series.add_mutually_exclusive_group()
     g_series.add_argument("--smooth", type=int, help="滑动平均窗口，如 10")
@@ -189,11 +190,19 @@ def _cmd_hist(args: argparse.Namespace) -> int:
 
 
 def _cmd_series(args: argparse.Namespace) -> int:
-    df = load_csv(args.csv, numeric_columns=[args.column])
+    columns = args.column.split(",")
+    df = load_csv(args.csv, numeric_columns=columns)
     apply_style()
-    output = args.output or f"{args.column}_series.png"
+    output = args.output or f"{args.column.replace(',', '_')}_series.png"
     x = df[args.x] if args.x else None
-    if args.bands:
+    if len(columns) > 1:
+        if args.smooth or args.bands:
+            msg = "--smooth/--bands 仅支持单列"
+            raise ValueError(msg)
+        ax = plot_multi_series(
+            {col: df[col] for col in columns}, x=x, title=args.column
+        )
+    elif args.bands:
         ax = plot_bands(df[args.column], window=args.bands, x=x, title=args.column)
     else:
         ax = plot_series(

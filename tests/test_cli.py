@@ -152,6 +152,20 @@ class TestSeries:
                 ]
             )
 
+    def test_multi_column(self, csv_path, tmp_path):
+        out = tmp_path / "multi.png"
+        code = main(["series", str(csv_path), "a,b", "--output", str(out)])
+        assert code == 0
+        assert out.exists() and out.stat().st_size > 0
+
+    def test_multi_column_rejects_smooth(self, csv_path, tmp_path, capsys):
+        out = tmp_path / "multi.png"
+        code = main(
+            ["series", str(csv_path), "a,b", "--smooth", "2", "--output", str(out)]
+        )
+        assert code == 1
+        assert "仅支持单列" in capsys.readouterr().err
+
 
 class TestHeatmap:
     def test_saves_output(self, csv_path, tmp_path):
