@@ -20,7 +20,12 @@ from kimi_space.stats import (
     weighted_mean,
     zscores,
 )
-from kimi_space.transform import log_returns, minmax_normalize, pct_change
+from kimi_space.transform import (
+    log_returns,
+    minmax_normalize,
+    pct_change,
+    robust_zscores,
+)
 
 __version__ = "0.9.0"
 
@@ -39,6 +44,7 @@ __all__ = [
     "moving_average",
     "moving_std",
     "pct_change",
+    "robust_zscores",
     "summarize",
     "weighted_mean",
     "zscore_mask",

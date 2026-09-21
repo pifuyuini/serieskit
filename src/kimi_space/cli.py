@@ -25,7 +25,12 @@ from kimi_space.plotting import (
     plot_series,
 )
 from kimi_space.stats import autocorr, median_abs_deviation, zscores
-from kimi_space.transform import log_returns, minmax_normalize, pct_change
+from kimi_space.transform import (
+    log_returns,
+    minmax_normalize,
+    pct_change,
+    robust_zscores,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -119,7 +124,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_trans.add_argument("column", help="数值列名")
     p_trans.add_argument(
         "--method",
-        choices=["minmax", "pct_change", "log_returns", "zscore"],
+        choices=["minmax", "pct_change", "log_returns", "zscore", "robust_zscore"],
         default="zscore",
         help="变换方法（默认 zscore）",
     )
@@ -258,6 +263,8 @@ def _cmd_transform(args: argparse.Namespace) -> int:
         result = pct_change(series)
     elif args.method == "log_returns":
         result = log_returns(series)
+    elif args.method == "robust_zscore":
+        result = robust_zscores(series)
     else:
         result = zscores(series)
     for value in result:

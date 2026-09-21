@@ -1,7 +1,12 @@
 import numpy as np
 import pytest
 
-from kimi_space.transform import log_returns, minmax_normalize, pct_change
+from kimi_space.transform import (
+    log_returns,
+    minmax_normalize,
+    pct_change,
+    robust_zscores,
+)
 
 
 class TestMinmaxNormalize:
@@ -57,3 +62,22 @@ class TestLogReturns:
     def test_empty_raises(self):
         with pytest.raises(ValueError, match="为空"):
             log_returns([])
+
+
+class TestRobustZscores:
+    def test_outlier_dominates(self):
+        result = robust_zscores([1.0, 2.0, 3.0, 4.0, 100.0])
+        assert result[-1] > 3.5
+        assert np.abs(result[:-1]).max() < 3.5
+
+    def test_matches_mad_mask_semantics(self):
+        rng = np.random.default_rng(5)
+        data = np.concatenate([rng.normal(0, 1, 100), [20.0]])
+        assert (np.abs(robust_zscores(data)) > 3.5).sum() == 1
+
+    def test_constant_series_returns_zeros(self):
+        np.testing.assert_array_equal(robust_zscores([7, 7, 7]), np.zeros(3))
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError, match="为空"):
+            robust_zscores([])

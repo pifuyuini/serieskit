@@ -33,6 +33,7 @@
 | `minmax_normalize(values, *, feature_range=(0, 1)) -> ndarray` | 最小-最大归一化；常数序列映射区间中点 |
 | `pct_change(values) -> ndarray` | 相邻变化率；首元素与前值为 0 处为 NaN |
 | `log_returns(values) -> ndarray` | 对数收益；比值非正处为 NaN |
+| `robust_zscores(values) -> ndarray` | 稳健 z-score（中位数 + MAD）；MAD=0 时全零 |
 
 ### 异常值（`kimi_space.outliers`）
 

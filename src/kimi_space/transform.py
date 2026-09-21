@@ -1,10 +1,12 @@
-"""常用序列变换：归一化、变化率、对数收益。"""
+"""常用序列变换：归一化、变化率、对数收益、稳健标准化。"""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
 import numpy as np
+
+from kimi_space.stats import median_abs_deviation
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -57,3 +59,22 @@ def log_returns(values: Iterable[float]) -> np.ndarray:
     )
     np.log(ratio, out=out[1:], where=ratio > 0)
     return out
+
+
+def robust_zscores(values: Iterable[float]) -> np.ndarray:
+    """基于中位数与 MAD 的稳健 z-score：0.6745·(x-median)/MAD。
+
+    对重尾与离群点稳健。MAD 为 0 时返回全零（偏离不可归一化）。
+
+    >>> float(robust_zscores([1.0, 2.0, 3.0, 4.0, 100.0])[-1])
+    65.4265
+    """
+    arr = np.asarray(list(values), dtype=float).ravel()
+    if arr.size == 0:
+        msg = "values 为空"
+        raise ValueError(msg)
+    med = float(np.median(arr))
+    mad = median_abs_deviation(arr)
+    if mad == 0.0:
+        return np.zeros_like(arr)
+    return 0.6745 * (arr - med) / mad

@@ -274,6 +274,12 @@ class TestTransform:
         with pytest.raises(SystemExit):
             main(["transform", str(csv_path), "a", "--method", "nope"])
 
+    def test_robust_zscore_method(self, csv_path, capsys):
+        assert main(["transform", str(csv_path), "a", "--method", "robust_zscore"]) == 0
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert len(lines) == 3
+        assert float(lines[1]) == pytest.approx(0.0)
+
     def test_non_numeric_column_returns_1(self, csv_path, capsys):
         assert main(["transform", str(csv_path), "name"]) == 1
         assert "error" in capsys.readouterr().err
