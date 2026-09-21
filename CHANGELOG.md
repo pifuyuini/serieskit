@@ -2,6 +2,26 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.3.0] - 2026-09-21
+
+### 新增
+
+- CLI
+  - 全部子命令支持 `-` 从标准输入读取 CSV（Unix 管道友好）
+  - `corr` 子命令：文本相关系数矩阵（pearson/spearman/kendall）
+  - `outliers --plot`：检出同时保存异常值标注图
+  - `series --x`：自定义横轴列
+- 库
+  - `plot_series` 支持自定义横轴；`plot_outliers` 支持外部掩码
+  - `io.load_csv` 支持 `-` 标准输入
+- Rust
+  - `kimi-space-rs` 新增 `moving-average <w>` 子命令；`outliers` 计数写 stderr（与 Python 侧对齐）
+- 测试与工程化
+  - hypothesis 性质测试之外的补充：doctest 纳入测试（--doctest-modules）
+  - 版本一致性元测试（pyproject/Cargo.toml/__init__.py/CHANGELOG）
+  - Dependabot（github-actions / uv / cargo 周检）
+  - 演示报告覆盖异常值、对数收益与箱线图
+
 ## [0.2.0] - 2026-09-21
 
 ### 新增
