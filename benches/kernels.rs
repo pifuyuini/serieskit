@@ -24,6 +24,15 @@ fn bench_kernels(c: &mut Criterion) {
     });
     c.bench_function("summarize", |b| b.iter(|| kimi_space::summarize(&data)));
     c.bench_function("zscores", |b| b.iter(|| kimi_space::zscores(&data)));
+    c.bench_function("autocorr lag1", |b| {
+        b.iter(|| kimi_space::autocorr(&data, 1))
+    });
+    c.bench_function("mad_mask t3.5", |b| {
+        b.iter(|| kimi_space::mad_mask(&data, 3.5))
+    });
+    c.bench_function("robust_zscores", |b| {
+        b.iter(|| kimi_space::robust_zscores(&data))
+    });
 }
 
 criterion_group!(benches, bench_kernels);
