@@ -42,6 +42,8 @@
 | `iqr_outliers(values, *, k=1.5) -> ndarray` | IQR 判定的异常值 |
 | `zscore_mask(values, *, threshold=3.0) -> ndarray[bool]` | z-score 法正常值掩码 |
 | `zscore_outliers(values, *, threshold=3.0) -> ndarray` | z-score 判定的异常值 |
+| `mad_mask(values, *, threshold=3.5) -> ndarray[bool]` | MAD 修正 z-score 法正常值掩码（重尾稳健） |
+| `mad_outliers(values, *, threshold=3.5) -> ndarray` | MAD 法判定的异常值 |
 
 ### 绘图（`kimi_space.plotting`，均返回 `matplotlib.axes.Axes`）
 

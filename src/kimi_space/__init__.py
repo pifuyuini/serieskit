@@ -3,6 +3,8 @@
 from kimi_space.outliers import (
     iqr_mask,
     iqr_outliers,
+    mad_mask,
+    mad_outliers,
     zscore_mask,
     zscore_outliers,
 )
@@ -30,6 +32,8 @@ __all__ = [
     "iqr_mask",
     "iqr_outliers",
     "log_returns",
+    "mad_mask",
+    "mad_outliers",
     "median_abs_deviation",
     "minmax_normalize",
     "moving_average",

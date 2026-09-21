@@ -214,6 +214,20 @@ class TestOutliers:
         assert code == 0
         assert "200.0" in capsys.readouterr().out
 
+    def test_mad_method(self, outlier_csv, capsys):
+        code = main(["outliers", str(outlier_csv), "x", "--method", "mad"])
+        assert code == 0
+        captured = capsys.readouterr()
+        assert "200.0" in captured.out
+        assert "1 个异常值" in captured.err
+
+    def test_mad_custom_threshold(self, outlier_csv, capsys):
+        code = main(
+            ["outliers", str(outlier_csv), "x", "--method", "mad", "--threshold", "100"]
+        )
+        assert code == 0
+        assert "0 个异常值" in capsys.readouterr().err
+
     def test_clean_column_reports_none(self, csv_path, capsys):
         assert main(["outliers", str(csv_path), "a"]) == 0
         captured = capsys.readouterr()
