@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.18.0] - 2026-09-21
+
+### 新增
+
+- Rust `kimi-space-rs summary --json`（非有限值输出 null，与 Python CLI JSON 对齐）
+- 元测试：CHANGELOG 顶部版本与最新 git tag 一致性守卫
+
 ## [0.17.0] - 2026-09-21
 
 ### 新增
