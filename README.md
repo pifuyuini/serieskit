@@ -51,6 +51,7 @@ kimi-space outliers data.csv price --method iqr   # 逐行输出异常值
 kimi-space outliers data.csv price --plot out.png # 检出并保存标注图
 kimi-space transform data.csv price --method pct_change  # 逐行输出变换结果
 kimi-space autocorr data.csv price --lag 5   # lag-5 自相关系数
+kimi-space percentile data.csv price --q 90  # P90 分位数
 cat data.csv | kimi-space summary -    # 路径为 - 时从标准输入读取（全部子命令通用）
 ```
 

@@ -7,6 +7,7 @@ import json
 import sys
 from typing import TYPE_CHECKING, cast
 
+import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure
 
@@ -125,6 +126,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_ac.add_argument("--lag", type=int, default=1, help="滞后阶数（默认 1）")
     p_ac.set_defaults(func=_cmd_autocorr)
 
+    p_pct = sub.add_parser("percentile", help="输出指定数值列的分位数")
+    p_pct.add_argument("csv", help="CSV 文件路径")
+    p_pct.add_argument("column", help="数值列名")
+    p_pct.add_argument("--q", type=float, default=50.0, help="分位点 0-100（默认 50）")
+    p_pct.set_defaults(func=_cmd_percentile)
+
     return parser
 
 
@@ -242,6 +249,15 @@ def _cmd_transform(args: argparse.Namespace) -> int:
 def _cmd_autocorr(args: argparse.Namespace) -> int:
     df = load_csv(args.csv, numeric_columns=[args.column])
     print(autocorr(df[args.column], lag=args.lag))
+    return 0
+
+
+def _cmd_percentile(args: argparse.Namespace) -> int:
+    df = load_csv(args.csv, numeric_columns=[args.column])
+    if not 0.0 <= args.q <= 100.0:
+        msg = f"q 必须在 [0, 100]，收到 {args.q}"
+        raise ValueError(msg)
+    print(float(np.percentile(df[args.column].to_numpy(dtype=float), args.q)))
     return 0
 
 

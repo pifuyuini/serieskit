@@ -277,3 +277,17 @@ class TestAutocorr:
     def test_invalid_lag_returns_1(self, csv_path, capsys):
         assert main(["autocorr", str(csv_path), "a", "--lag", "0"]) == 1
         assert "error" in capsys.readouterr().err
+
+
+class TestPercentile:
+    def test_default_median(self, csv_path, capsys):
+        assert main(["percentile", str(csv_path), "a"]) == 0
+        assert float(capsys.readouterr().out.strip()) == pytest.approx(2.0)
+
+    def test_explicit_q(self, csv_path, capsys):
+        assert main(["percentile", str(csv_path), "b", "--q", "75"]) == 0
+        assert float(capsys.readouterr().out.strip()) == pytest.approx(3.0)
+
+    def test_out_of_range_returns_1(self, csv_path, capsys):
+        assert main(["percentile", str(csv_path), "a", "--q", "101"]) == 1
+        assert "error" in capsys.readouterr().err
