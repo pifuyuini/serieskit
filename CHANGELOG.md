@@ -2,6 +2,18 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.11.0] - 2026-09-21
+
+### 新增
+
+- `numeric_summary_by` 支持多列分组；CLI `summary --by a,b`
+- CLI `series` 支持逗号分隔多列对比（与 --smooth/--bands 互斥）
+- Rust 基准覆盖扩至七个内核函数
+
+### 性能
+
+- Rust MAD 路径排序次数 3 → 2，mad_mask/robust_zscores 提速约 55%
+
 ## [0.10.0] - 2026-09-21
 
 ### 新增
