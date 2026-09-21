@@ -41,6 +41,30 @@ pub fn harmonic_mean(values: &[f64]) -> Option<f64> {
     Some(n / values.iter().map(|v| 1.0 / v).sum::<f64>())
 }
 
+/// lag-k 自相关系数（切片 Pearson 语义，与 Python 侧 autocorr 一致）。
+/// lag 不满足 1 <= lag < len 时返回 None；切片方差为 0 时返回 NaN。
+pub fn autocorr(values: &[f64], lag: usize) -> Option<f64> {
+    if lag < 1 || lag >= values.len() {
+        return None;
+    }
+    let a = &values[..values.len() - lag];
+    let b = &values[lag..];
+    let (ma, mb) = (mean(a)?, mean(b)?);
+    let n = a.len() as f64;
+    let va = a.iter().map(|v| (v - ma).powi(2)).sum::<f64>() / n;
+    let vb = b.iter().map(|v| (v - mb).powi(2)).sum::<f64>() / n;
+    if va == 0.0 || vb == 0.0 {
+        return Some(f64::NAN);
+    }
+    let cov = a
+        .iter()
+        .zip(b)
+        .map(|(x, y)| (x - ma) * (y - mb))
+        .sum::<f64>()
+        / n;
+    Some(cov / (va.sqrt() * vb.sqrt()))
+}
+
 /// 样本标准差（ddof=1）；元素少于 2 个时返回 None。
 pub fn sample_std(values: &[f64]) -> Option<f64> {
     if values.len() < 2 {
@@ -484,5 +508,29 @@ mod tests {
         let g = geometric_mean(&data).unwrap();
         let a = mean(&data).unwrap();
         assert!(h <= g && g <= a);
+    }
+
+    #[test]
+    fn autocorr_linear_trend_is_one() {
+        let r = autocorr(&[1.0, 2.0, 3.0, 4.0, 5.0], 1).unwrap();
+        assert!((r - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn autocorr_alternating_series() {
+        let data: Vec<f64> = [1.0, -1.0].repeat(5);
+        assert!((autocorr(&data, 1).unwrap() + 1.0).abs() < 1e-12);
+        assert!((autocorr(&data, 2).unwrap() - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn autocorr_constant_is_nan() {
+        assert!(autocorr(&[7.0, 7.0, 7.0], 1).unwrap().is_nan());
+    }
+
+    #[test]
+    fn autocorr_invalid_lag_is_none() {
+        assert_eq!(autocorr(&[1.0, 2.0, 3.0], 0), None);
+        assert_eq!(autocorr(&[1.0, 2.0, 3.0], 3), None);
     }
 }

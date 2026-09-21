@@ -12,7 +12,13 @@ import numpy as np
 import pytest
 from scipy import stats as scipy_stats
 
-from kimi_space.stats import geometric_mean, harmonic_mean, moving_average, zscores
+from kimi_space.stats import (
+    autocorr,
+    geometric_mean,
+    harmonic_mean,
+    moving_average,
+    zscores,
+)
 from kimi_space.transform import log_returns, minmax_normalize, pct_change
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -140,3 +146,10 @@ class TestRustParity:
         data = rng.normal(size=300).tolist()
         rust = rust_rows(rust_bin, ["moving-average", "10"], data)
         assert_rows_close(rust, moving_average(data, 10).tolist())
+
+    def test_autocorr_parity(self, rust_bin):
+        rng = np.random.default_rng(13)
+        data = rng.normal(size=500).tolist()
+        for lag in [1, 5, 20]:
+            rust = rust_rows(rust_bin, ["autocorr", str(lag)], data)
+            assert rust[0] == pytest.approx(autocorr(data, lag), rel=1e-9)

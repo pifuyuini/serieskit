@@ -201,3 +201,24 @@ fn moving_average_window_too_large_fails() {
     assert!(!ok);
     assert!(stderr.contains("window 为 0 或超过数据长度"));
 }
+
+#[test]
+fn autocorr_subcommand_default_lag() {
+    let (ok, stdout, _) = run_bin(&["autocorr"], "1 2 3 4 5");
+    assert!(ok);
+    assert!((rows(&stdout)[0] - 1.0).abs() < 1e-12);
+}
+
+#[test]
+fn autocorr_subcommand_explicit_lag() {
+    let (ok, stdout, _) = run_bin(&["autocorr", "2"], "1 -1 1 -1 1 -1");
+    assert!(ok);
+    assert!((rows(&stdout)[0] - 1.0).abs() < 1e-12);
+}
+
+#[test]
+fn autocorr_invalid_lag_fails() {
+    let (ok, _, stderr) = run_bin(&["autocorr", "9"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("lag"));
+}
