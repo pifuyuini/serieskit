@@ -6,7 +6,7 @@
 
 | 函数 | 说明 |
 | --- | --- |
-| `summarize(values) -> SummaryStats` | 描述性统计摘要（count/mean/std/min/q25/median/q75/max/skew/kurtosis），NaN 自动剔除 |
+| `summarize(values) -> SummaryStats` | 描述性统计摘要（count/mean/std/min/q25/median/q75/max/skew/kurtosis/mad），NaN 自动剔除 |
 | `moving_average(values, window) -> ndarray` | 等权滑动平均，长度 n-window+1 |
 | `moving_std(values, window) -> ndarray` | 滑动窗口样本标准差（ddof=1，window>=2） |
 | `zscores(values) -> ndarray` | 样本标准差标准化；常数序列返回全零 |

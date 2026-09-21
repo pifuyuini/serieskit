@@ -281,6 +281,7 @@ pub struct Summary {
     pub max: f64,
     pub skew: f64,
     pub kurtosis: f64,
+    pub mad: f64,
 }
 
 /// 计算描述性统计摘要；空输入返回 None。
@@ -296,17 +297,21 @@ pub fn summarize(values: &[f64]) -> Option<Summary> {
     }
     let mut sorted = values.to_vec();
     sorted.sort_by(f64::total_cmp);
+    let median = percentile_sorted(&sorted, 50.0);
+    let mut dev: Vec<f64> = values.iter().map(|v| (v - median).abs()).collect();
+    dev.sort_by(f64::total_cmp);
     Some(Summary {
         count: values.len(),
         mean: mean(values)?,
         std: sample_std(values).unwrap_or(0.0),
         min: sorted[0],
         q25: percentile_sorted(&sorted, 25.0),
-        median: percentile_sorted(&sorted, 50.0),
+        median,
         q75: percentile_sorted(&sorted, 75.0),
         max: sorted[sorted.len() - 1],
         skew: skew(values).unwrap_or(f64::NAN),
         kurtosis: kurtosis(values).unwrap_or(f64::NAN),
+        mad: percentile_sorted(&dev, 50.0),
     })
 }
 

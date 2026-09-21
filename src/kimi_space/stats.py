@@ -29,6 +29,7 @@ class SummaryStats:
     max: float
     skew: float
     kurtosis: float
+    mad: float  # 中位数绝对偏差
 
     def to_dict(self) -> dict[str, float | int]:
         return {
@@ -42,6 +43,7 @@ class SummaryStats:
             "max": self.max,
             "skew": self.skew,
             "kurtosis": self.kurtosis,
+            "mad": self.mad,
         }
 
 
@@ -75,6 +77,7 @@ def summarize(values: Iterable[float]) -> SummaryStats:
         max=float(np.max(arr)),
         skew=float(scipy_stats.skew(arr)),
         kurtosis=float(scipy_stats.kurtosis(arr)),
+        mad=median_abs_deviation(arr),
     )
 
 

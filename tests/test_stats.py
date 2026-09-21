@@ -65,6 +65,7 @@ class TestSummarize:
             "max",
             "skew",
             "kurtosis",
+            "mad",
         }
 
 

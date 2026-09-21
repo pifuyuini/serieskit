@@ -62,6 +62,7 @@ fn main() -> ExitCode {
                 println!("max={}", s.max);
                 println!("skew={}", s.skew);
                 println!("kurtosis={}", s.kurtosis);
+                println!("mad={}", s.mad);
             }
             "zscores" => print_rows(&kimi_space::zscores(&values)),
             "pct-change" => print_rows(&kimi_space::pct_change(&values)),

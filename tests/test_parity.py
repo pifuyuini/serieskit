@@ -101,6 +101,9 @@ class TestRustParity:
         assert float(rust["kurtosis"]) == pytest.approx(
             scipy_stats.kurtosis(data), rel=1e-9
         )
+        assert float(rust["mad"]) == pytest.approx(
+            median_abs_deviation(data), rel=1e-12
+        )
 
     def test_integer_sequence(self, rust_bin):
         data = list(range(1, 11))
