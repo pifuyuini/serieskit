@@ -62,7 +62,22 @@ def plot_series(
     label: str | None = None,
     smooth_window: int | None = None,
 ) -> Axes:
-    """绘制序列折线；x 可指定横轴，smooth_window 给定时叠加等权滑动平均曲线。"""
+    """绘制序列折线。
+
+    Args:
+        values: 纵轴序列。
+        x: 横轴取值；默认行号 0..n-1。长度必须与 values 一致。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+        label: 图例标签，默认 "series"。
+        smooth_window: 给定窗口时叠加等权滑动平均曲线（横轴对齐窗口右端）。
+
+    Returns:
+        绘制完成的 Axes。
+
+    Raises:
+        ValueError: x 与 values 长度不一致，或 smooth_window 非法。
+    """
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
     xs = np.arange(arr.size) if x is None else np.asarray(list(x))
@@ -88,9 +103,17 @@ def plot_histogram(
     ax: Axes | None = None,
     title: str | None = None,
 ) -> Axes:
-    """绘制直方图并标注均值与中位数参考线；kde=True 时叠加核密度估计曲线。
+    """绘制直方图并标注均值与中位数参考线。
 
-    kde 模式下直方图切换为密度刻度，与 KDE 曲线同尺度。
+    Args:
+        values: 数据序列。
+        bins: 分箱数，默认 20。
+        kde: True 时叠加核密度估计曲线，直方图同步切换为密度刻度。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+
+    Returns:
+        绘制完成的 Axes。
     """
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
@@ -117,7 +140,18 @@ def plot_outliers(
 ) -> Axes:
     """绘制序列折线并以红色散点标出异常值。
 
-    默认用 IQR 栅栏法判定；mask 给定时直接使用（True 表示正常值）。
+    Args:
+        values: 数据序列。
+        k: IQR 栅栏系数，默认 1.5（仅在 mask 未给定时生效）。
+        mask: 外部判定的正常值掩码（True 为正常）；给定时优先于内置 IQR。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+
+    Returns:
+        绘制完成的 Axes。
+
+    Raises:
+        ValueError: mask 与 values 长度不一致。
     """
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
@@ -144,7 +178,22 @@ def plot_bands(
     ax: Axes | None = None,
     title: str | None = None,
 ) -> Axes:
-    """绘制序列及其滑动均值 ± num_std 倍滑动标准差的波动带。"""
+    """绘制序列及其滑动均值 ± num_std 倍滑动标准差的波动带。
+
+    Args:
+        values: 数据序列。
+        window: 滑动窗口，默认 20（须 >= 2）。
+        num_std: 波动带标准差倍数，默认 2.0。
+        x: 横轴取值；默认行号。长度必须与 values 一致。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+
+    Returns:
+        绘制完成的 Axes。
+
+    Raises:
+        ValueError: x 长度不一致，或 window 非法。
+    """
     ax = _get_ax(ax)
     arr = np.asarray(list(values), dtype=float)
     ma = moving_average(arr, window)
@@ -176,7 +225,17 @@ def plot_box(
     ax: Axes | None = None,
     title: str | None = None,
 ) -> Axes:
-    """按列绘制箱线图，便于比较多列数值的分布。"""
+    """按列绘制箱线图，便于比较多列数值的分布。
+
+    Args:
+        df: 数据表；默认取全部数值列。
+        columns: 列名子集；默认 None 表示全部数值列。
+        ax: 目标 Axes；默认新建。
+        title: 标题。
+
+    Returns:
+        绘制完成的 Axes。
+    """
     data = (
         df[list(columns)] if columns is not None else df.select_dtypes(include="number")
     )
@@ -193,7 +252,16 @@ def plot_correlation_heatmap(
     columns: Sequence[str] | None = None,
     ax: Axes | None = None,
 ) -> Axes:
-    """绘制数值列 Pearson 相关系数热力图，并在格内标注数值。"""
+    """绘制数值列 Pearson 相关系数热力图，并在格内标注数值。
+
+    Args:
+        df: 数据表；默认取全部数值列。
+        columns: 列名子集。
+        ax: 目标 Axes；默认新建。
+
+    Returns:
+        绘制完成的 Axes（含 colorbar）。
+    """
     data = (
         df[list(columns)] if columns is not None else df.select_dtypes(include="number")
     )
