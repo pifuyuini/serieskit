@@ -17,6 +17,7 @@ from kimi_space.stats import (
     geometric_mean,
     harmonic_mean,
     moving_average,
+    moving_std,
     zscores,
 )
 from kimi_space.transform import log_returns, minmax_normalize, pct_change
@@ -153,3 +154,9 @@ class TestRustParity:
         for lag in [1, 5, 20]:
             rust = rust_rows(rust_bin, ["autocorr", str(lag)], data)
             assert rust[0] == pytest.approx(autocorr(data, lag), rel=1e-9)
+
+    def test_moving_std_parity(self, rust_bin):
+        rng = np.random.default_rng(14)
+        data = rng.normal(size=300).tolist()
+        rust = rust_rows(rust_bin, ["moving-std", "7"], data)
+        assert_rows_close(rust, moving_std(data, 7).tolist())

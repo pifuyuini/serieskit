@@ -222,3 +222,21 @@ fn autocorr_invalid_lag_fails() {
     assert!(!ok);
     assert!(stderr.contains("lag"));
 }
+
+#[test]
+fn moving_std_subcommand() {
+    let (ok, stdout, _) = run_bin(&["moving-std", "2"], "1 2 3 4");
+    assert!(ok);
+    let r = rows(&stdout);
+    assert_eq!(r.len(), 3);
+    for v in r {
+        assert!((v - std::f64::consts::FRAC_1_SQRT_2).abs() < 1e-12);
+    }
+}
+
+#[test]
+fn moving_std_window_one_fails() {
+    let (ok, _, stderr) = run_bin(&["moving-std", "1"], "1 2 3");
+    assert!(!ok);
+    assert!(stderr.contains("window"));
+}

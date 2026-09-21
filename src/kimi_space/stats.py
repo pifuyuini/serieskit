@@ -95,6 +95,25 @@ def moving_average(values: Iterable[float], window: int) -> np.ndarray:
     return np.convolve(arr, kernel, mode="valid")
 
 
+def moving_std(values: Iterable[float], window: int) -> np.ndarray:
+    """滑动窗口样本标准差（ddof=1），返回长度为 len(values) - window + 1 的数组。
+
+    window 必须 >= 2 且不超过数据长度。
+
+    >>> moving_std([1, 2, 3, 4], 2)
+    array([0.70710678, 0.70710678, 0.70710678])
+    """
+    if window < 2:
+        msg = f"window 必须 >= 2，收到 {window}"
+        raise ValueError(msg)
+    arr = np.asarray(list(values), dtype=float).ravel()
+    if window > arr.size:
+        msg = f"window ({window}) 超过数据长度 ({arr.size})"
+        raise ValueError(msg)
+    windows = np.lib.stride_tricks.sliding_window_view(arr, window)
+    return windows.std(axis=-1, ddof=1)
+
+
 def zscores(values: Iterable[float]) -> np.ndarray:
     """基于样本标准差的标准化；常数序列返回全零。
 

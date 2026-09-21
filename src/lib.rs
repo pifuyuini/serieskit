@@ -105,6 +105,19 @@ pub fn zscores(values: &[f64]) -> Vec<f64> {
     values.iter().map(|v| (v - m) / s).collect()
 }
 
+/// 滑动窗口样本标准差（ddof=1）；window < 2 或大于数据长度时返回 None。
+pub fn moving_std(values: &[f64], window: usize) -> Option<Vec<f64>> {
+    if window < 2 || window > values.len() {
+        return None;
+    }
+    Some(
+        values
+            .windows(window)
+            .map(|w| sample_std(w).unwrap_or(0.0))
+            .collect(),
+    )
+}
+
 /// 线性插值分位数（与 numpy 默认方法一致）；空输入或 q 不在 [0, 100] 返回 None。
 pub fn percentile(values: &[f64], q: f64) -> Option<f64> {
     if values.is_empty() || !(0.0..=100.0).contains(&q) {
@@ -532,5 +545,25 @@ mod tests {
     fn autocorr_invalid_lag_is_none() {
         assert_eq!(autocorr(&[1.0, 2.0, 3.0], 0), None);
         assert_eq!(autocorr(&[1.0, 2.0, 3.0], 3), None);
+    }
+
+    #[test]
+    fn moving_std_known_values() {
+        let r = moving_std(&[1.0, 2.0, 3.0, 4.0], 2).unwrap();
+        let half = std::f64::consts::FRAC_1_SQRT_2;
+        assert_close(&r, &[half, half, half]);
+    }
+
+    #[test]
+    fn moving_std_invalid_windows() {
+        assert_eq!(moving_std(&[1.0, 2.0, 3.0], 1), None);
+        assert_eq!(moving_std(&[1.0, 2.0], 3), None);
+    }
+
+    #[test]
+    fn moving_std_full_window_matches_sample_std() {
+        let data = [3.0, 1.0, 4.0, 1.0, 5.0];
+        let r = moving_std(&data, 5).unwrap();
+        assert_close(&r, &[sample_std(&data).unwrap()]);
     }
 }

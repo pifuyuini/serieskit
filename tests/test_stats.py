@@ -7,6 +7,7 @@ from kimi_space.stats import (
     geometric_mean,
     harmonic_mean,
     moving_average,
+    moving_std,
     summarize,
     weighted_mean,
     zscores,
@@ -86,6 +87,24 @@ class TestMovingAverage:
     def test_window_larger_than_data_raises(self):
         with pytest.raises(ValueError, match="超过数据长度"):
             moving_average([1, 2], 3)
+
+
+class TestMovingStd:
+    def test_known_values(self):
+        result = moving_std([1, 2, 3, 4], 2)
+        np.testing.assert_allclose(result, [np.sqrt(0.5)] * 3)
+
+    def test_window_full_length(self):
+        result = moving_std([1, 2, 3], 3)
+        np.testing.assert_allclose(result, [1.0])
+
+    def test_window_one_raises(self):
+        with pytest.raises(ValueError, match=">= 2"):
+            moving_std([1, 2, 3], 1)
+
+    def test_window_larger_than_data_raises(self):
+        with pytest.raises(ValueError, match="超过数据长度"):
+            moving_std([1, 2], 3)
 
 
 class TestZscores:
