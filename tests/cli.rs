@@ -131,6 +131,16 @@ fn help_flag_prints_usage() {
 }
 
 #[test]
+fn version_flag_prints_version() {
+    for flag in ["-V", "--version"] {
+        let (ok, stdout, _) = run_bin(&[flag], "");
+        assert!(ok);
+        assert!(stdout.contains("kimi-space-rs"));
+        assert!(stdout.contains(env!("CARGO_PKG_VERSION")));
+    }
+}
+
+#[test]
 fn outliers_subcommand() {
     let (ok, stdout, stderr) = run_bin(&["outliers"], "1 2 2.5 3 3.5 4 100");
     assert!(ok);

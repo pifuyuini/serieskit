@@ -42,6 +42,10 @@ fn main() -> ExitCode {
         println!("{USAGE}");
         return ExitCode::SUCCESS;
     }
+    if matches!(command, "-V" | "--version") {
+        println!("kimi-space-rs {}", env!("CARGO_PKG_VERSION"));
+        return ExitCode::SUCCESS;
+    }
 
     let run = || -> Result<(), String> {
         let values = read_values()?;
