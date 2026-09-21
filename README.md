@@ -54,7 +54,10 @@ kimi-space transform data.csv price --method pct_change  # 逐行输出变换结
 kimi-space autocorr data.csv price --lag 5   # lag-5 自相关系数
 kimi-space percentile data.csv price --q 90  # P90 分位数
 kimi-space mad data.csv price        # 中位数绝对偏差（稳健离散度）
+kimi-space summary data.csv --by region      # 分组统计（多列：--by region,channel）
+kimi-space series data.csv a,b       # 多列对比折线（--smooth/--bands 仅单列）
 kimi-space report data.csv --outdir report   # 一键生成统计表与全部图表
+kimi-space report data.csv --by region --outdir report   # 分组报告
 cat data.csv | kimi-space summary -    # 路径为 - 时从标准输入读取（全部子命令通用）
 ```
 
