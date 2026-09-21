@@ -19,7 +19,7 @@ from kimi_space.stats import (
 )
 from kimi_space.transform import log_returns, minmax_normalize, pct_change
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 __all__ = [
     "SummaryStats",

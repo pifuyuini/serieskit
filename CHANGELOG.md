@@ -2,6 +2,15 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.6.0] - 2026-09-21
+
+### 新增
+
+- CLI：`percentile` 子命令（--q，默认 50）
+- Rust：`kimi-space-rs percentile <q>` 子命令（parity 校验六个分位点）
+- `io.load_csv` 支持 `parse_dates` 日期列解析
+- 文档：AGENTS.md 追加项目现状速览；README 同步 autocorr/percentile
+
 ## [0.5.0] - 2026-09-21
 
 ### 新增
