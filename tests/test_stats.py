@@ -8,6 +8,7 @@ from kimi_space.stats import (
     harmonic_mean,
     median_abs_deviation,
     moving_average,
+    moving_median,
     moving_std,
     summarize,
     weighted_mean,
@@ -107,6 +108,30 @@ class TestMovingStd:
     def test_window_larger_than_data_raises(self):
         with pytest.raises(ValueError, match="超过数据长度"):
             moving_std([1, 2], 3)
+
+
+class TestMovingMedian:
+    def test_known_values(self):
+        result = moving_median([1.0, 100.0, 3.0], 2)
+        np.testing.assert_allclose(result, [50.5, 51.5])
+
+    def test_robust_to_outlier(self):
+        data = [1.0, 2.0, 3.0, 100.0, 4.0, 5.0]
+        med = moving_median(data, 3)
+        mean = moving_average(data, 3)
+        assert med[3] == pytest.approx(5.0)  # 中位数不被 100 拉走
+        assert mean[3] > 30  # 而均值被拉走
+
+    def test_window_one_is_identity(self):
+        np.testing.assert_allclose(moving_median([3.0, 1.0, 2.0], 1), [3.0, 1.0, 2.0])
+
+    def test_window_zero_raises(self):
+        with pytest.raises(ValueError, match=">= 1"):
+            moving_median([1, 2], 0)
+
+    def test_window_larger_than_data_raises(self):
+        with pytest.raises(ValueError, match="超过数据长度"):
+            moving_median([1, 2], 3)
 
 
 class TestZscores:

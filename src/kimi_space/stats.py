@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+import numpy.typing as npt
 from scipy import stats as scipy_stats
 
 if TYPE_CHECKING:
@@ -121,6 +122,26 @@ def moving_std(values: Iterable[float], window: int) -> np.ndarray:
         raise ValueError(msg)
     windows = np.lib.stride_tricks.sliding_window_view(arr, window)
     return windows.std(axis=-1, ddof=1)
+
+
+def moving_median(values: Iterable[float], window: int) -> np.ndarray:
+    """滑动窗口中位数，返回长度为 len(values) - window + 1 的数组。
+
+    对离群点稳健的滑动统计。window 必须 >= 1 且不超过数据长度。
+
+    >>> moving_median([1.0, 100.0, 3.0], 2)
+    array([50.5, 51.5])
+    """
+    if window < 1:
+        msg = f"window 必须 >= 1，收到 {window}"
+        raise ValueError(msg)
+    arr = np.asarray(list(values), dtype=float).ravel()
+    if window > arr.size:
+        msg = f"window ({window}) 超过数据长度 ({arr.size})"
+        raise ValueError(msg)
+    windows = np.lib.stride_tricks.sliding_window_view(arr, window)
+    result: npt.NDArray[np.float64] = np.median(windows, axis=-1)
+    return result
 
 
 def zscores(values: Iterable[float]) -> np.ndarray:
