@@ -1,8 +1,10 @@
 [package]
-name = "kimi-space"
-version = "0.20.0"
+name = "serieskit"
+version = "0.21.0"
 edition = "2024"
-description = "kimi-space Rust 数值内核"
+description = "Numerical statistics and time-series transformations"
+repository = "https://github.com/pifuyuini/serieskit"
+readme = "README.md"
 license = "MIT"
 
 [dependencies]

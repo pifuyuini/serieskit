@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
-from kimi_space.stats import summarize
+from serieskit.stats import summarize
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

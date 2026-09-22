@@ -20,7 +20,7 @@ fn main() {
     let data = xorshift_series(n);
 
     let t0 = Instant::now();
-    let ma = kimi_space::moving_average(&data, window).unwrap();
+    let ma = serieskit::moving_average(&data, window).unwrap();
     let dt = t0.elapsed();
     println!(
         "rust moving_average: n={n} window={window} -> {} points in {:.3} ms (checksum {:.6})",
@@ -30,7 +30,7 @@ fn main() {
     );
 
     let t1 = Instant::now();
-    let s = kimi_space::summarize(&data).unwrap();
+    let s = serieskit::summarize(&data).unwrap();
     let dt1 = t1.elapsed();
     println!(
         "rust summarize: n={n} in {:.3} ms (mean {:.6})",
@@ -39,7 +39,7 @@ fn main() {
     );
 
     let t2 = Instant::now();
-    let ms = kimi_space::moving_std(&data, window).unwrap();
+    let ms = serieskit::moving_std(&data, window).unwrap();
     let dt2 = t2.elapsed();
     println!(
         "rust moving_std: n={n} window={window} -> {} points in {:.3} ms (checksum {:.6})",

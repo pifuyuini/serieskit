@@ -19,7 +19,7 @@ def bump(files_version: str) -> None:
         sys.exit(1)
 
     pyproject = ROOT / "pyproject.toml"
-    init_py = ROOT / "src" / "kimi_space" / "__init__.py"
+    init_py = ROOT / "src" / "serieskit" / "__init__.py"
     cargo = ROOT / "Cargo.toml"
     changelog = ROOT / "CHANGELOG.md"
 

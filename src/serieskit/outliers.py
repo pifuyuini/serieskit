@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import numpy.typing as npt
 
-from kimi_space.stats import _median_and_mad, zscores
+from serieskit.stats import _median_and_mad, zscores
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

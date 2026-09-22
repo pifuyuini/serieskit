@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from kimi_space.stats import moving_average, moving_std, summarize
+from serieskit.stats import moving_average, moving_std, summarize
 
 ROOT = Path(__file__).resolve().parent.parent
 N = 200_000

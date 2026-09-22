@@ -1,4 +1,4 @@
-"""kimi-space 命令行入口。"""
+"""serieskit 命令行入口。"""
 
 from __future__ import annotations
 
@@ -10,12 +10,13 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 
-from kimi_space import __version__
-from kimi_space.io import load_csv, numeric_summary, numeric_summary_by
-from kimi_space.outliers import iqr_mask, mad_mask, zscore_mask
-from kimi_space.plotting import (
+from serieskit import __version__
+from serieskit.io import load_csv, numeric_summary, numeric_summary_by
+from serieskit.outliers import iqr_mask, mad_mask, zscore_mask
+from serieskit.plotting import (
     apply_style,
     plot_bands,
     plot_box,
@@ -26,7 +27,7 @@ from kimi_space.plotting import (
     plot_robust_bands,
     plot_series,
 )
-from kimi_space.stats import (
+from serieskit.stats import (
     autocorr,
     median_abs_deviation,
     moving_average,
@@ -34,7 +35,7 @@ from kimi_space.stats import (
     moving_std,
     zscores,
 )
-from kimi_space.transform import (
+from serieskit.transform import (
     diff,
     log_returns,
     minmax_normalize,
@@ -50,12 +51,13 @@ if TYPE_CHECKING:
 
 def _save(ax: Axes, output: str) -> None:
     cast("Figure", ax.figure).savefig(output, bbox_inches="tight")
+    plt.close(cast("Figure", ax.figure))
     print(output)
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="kimi-space",
+        prog="serieskit",
         description="轻量数据分析工具集：CSV 摘要与快速可视化",
     )
     parser.add_argument(
@@ -197,8 +199,14 @@ def _cmd_summary(args: argparse.Namespace) -> int:
         def key_of(idx: object) -> str:
             return " | ".join(map(str, idx)) if isinstance(idx, tuple) else str(idx)
 
-        payload = {key_of(idx): row.to_dict() for idx, row in summary.iterrows()}
-        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        payload = {
+            key_of(idx): {
+                key: value if np.isfinite(value) else None
+                for key, value in row.to_dict().items()
+            }
+            for idx, row in summary.iterrows()
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False))
     else:
         with pd.option_context("display.float_format", lambda v: f"{v:.4f}"):
             print(summary.to_string())
@@ -223,17 +231,19 @@ def _cmd_series(args: argparse.Namespace) -> int:
     output = args.output or f"{args.column.replace(',', '_')}_series.png"
     x = df[args.x] if args.x else None
     if len(columns) > 1:
-        if args.smooth or args.bands or args.robust_bands:
+        if any(
+            value is not None for value in (args.smooth, args.bands, args.robust_bands)
+        ):
             msg = "--smooth/--bands/--robust-bands 仅支持单列"
             raise ValueError(msg)
         ax = plot_multi_series(
             {col: df[col] for col in columns}, x=x, title=args.column
         )
-    elif args.robust_bands:
+    elif args.robust_bands is not None:
         ax = plot_robust_bands(
             df[args.column], window=args.robust_bands, x=x, title=args.column
         )
-    elif args.bands:
+    elif args.bands is not None:
         ax = plot_bands(df[args.column], window=args.bands, x=x, title=args.column)
     else:
         ax = plot_series(
@@ -286,9 +296,13 @@ def _cmd_outliers(args: argparse.Namespace) -> int:
     if args.method == "iqr":
         mask = iqr_mask(df[args.column], k=args.k)
     elif args.method == "mad":
-        mask = mad_mask(df[args.column], threshold=args.threshold or 3.5)
+        mask = mad_mask(
+            df[args.column], threshold=3.5 if args.threshold is None else args.threshold
+        )
     else:
-        mask = zscore_mask(df[args.column], threshold=args.threshold or 3.0)
+        mask = zscore_mask(
+            df[args.column], threshold=3.0 if args.threshold is None else args.threshold
+        )
     values = df[args.column].to_numpy(dtype=float)
     result = values[~mask]
     for value in result:
@@ -298,6 +312,7 @@ def _cmd_outliers(args: argparse.Namespace) -> int:
         apply_style()
         ax = plot_outliers(values, mask=mask, title=args.column)
         cast("Figure", ax.figure).savefig(args.plot, bbox_inches="tight")
+        plt.close(cast("Figure", ax.figure))
     return 0
 
 

@@ -1,7 +1,7 @@
 [project]
-name = "kimi-space"
-version = "0.20.0"
-description = "轻量数据分析工具集：统计、绘图与 CSV 工作流"
+name = "serieskit"
+version = "0.21.0"
+description = "Statistics, CSV analysis, and plotting for numerical series"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
@@ -9,19 +9,24 @@ dependencies = [
     "matplotlib>=3.11.2",
     "numpy>=2.5.3",
     "pandas>=3.0.6",
-    "ruff>=0.16.8",
     "scipy>=1.18.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/pifuyuini/serieskit"
+Repository = "https://github.com/pifuyuini/serieskit"
+Documentation = "https://github.com/pifuyuini/serieskit/blob/main/docs/api.md"
+Issues = "https://github.com/pifuyuini/serieskit/issues"
+
 [project.scripts]
-kimi-space = "kimi_space.cli:main"
+serieskit = "serieskit.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/kimi_space"]
+packages = ["src/serieskit"]
 
 [tool.ruff]
 target-version = "py312"
@@ -31,7 +36,7 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "src/kimi_space"]
+testpaths = ["tests", "src/serieskit"]
 addopts = "-q --doctest-modules"
 
 [tool.mypy]
@@ -46,6 +51,7 @@ exclude_also = [
 
 [dependency-groups]
 dev = [
+    "ruff>=0.16.8",
     "hypothesis>=6.168.0",
     "mypy>=2.3.1",
     "pandas-stubs>=3.0.5.260914",

@@ -6,9 +6,9 @@ import numpy as np
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from kimi_space.outliers import iqr_mask
-from kimi_space.stats import moving_average, summarize, zscores
-from kimi_space.transform import minmax_normalize
+from serieskit.outliers import iqr_mask
+from serieskit.stats import moving_average, summarize, zscores
+from serieskit.transform import minmax_normalize
 
 finite_floats = st.floats(
     allow_nan=False, allow_infinity=False, min_value=-1e6, max_value=1e6

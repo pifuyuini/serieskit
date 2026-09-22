@@ -5,6 +5,7 @@
 
 import json
 import math
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -13,8 +14,8 @@ import numpy as np
 import pytest
 from scipy import stats as scipy_stats
 
-from kimi_space.outliers import mad_outliers
-from kimi_space.stats import (
+from serieskit.outliers import mad_outliers
+from serieskit.stats import (
     autocorr,
     geometric_mean,
     harmonic_mean,
@@ -26,7 +27,7 @@ from kimi_space.stats import (
     summarize,
     zscores,
 )
-from kimi_space.transform import (
+from serieskit.transform import (
     diff,
     log_returns,
     minmax_normalize,
@@ -35,7 +36,12 @@ from kimi_space.transform import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-BIN = ROOT / "target" / "debug" / "kimi-space-rs"
+BIN = (
+    ROOT
+    / "target"
+    / "debug"
+    / ("serieskit-rs.exe" if os.name == "nt" else "serieskit-rs")
+)
 
 pytestmark = pytest.mark.skipif(shutil.which("cargo") is None, reason="需要 cargo")
 
@@ -43,7 +49,7 @@ pytestmark = pytest.mark.skipif(shutil.which("cargo") is None, reason="需要 ca
 @pytest.fixture(scope="module")
 def rust_bin():
     subprocess.run(
-        ["cargo", "build", "--quiet", "--bin", "kimi-space-rs"],
+        ["cargo", "build", "--quiet", "--bin", "serieskit-rs"],
         cwd=ROOT,
         check=True,
     )

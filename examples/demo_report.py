@@ -9,8 +9,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from kimi_space.io import numeric_summary
-from kimi_space.plotting import (
+from serieskit.io import numeric_summary
+from serieskit.plotting import (
     apply_style,
     plot_bands,
     plot_box,
@@ -19,8 +19,8 @@ from kimi_space.plotting import (
     plot_outliers,
     plot_series,
 )
-from kimi_space.stats import geometric_mean, harmonic_mean
-from kimi_space.transform import log_returns
+from serieskit.stats import geometric_mean, harmonic_mean
+from serieskit.transform import log_returns
 
 
 def make_dataset(n: int = 200, seed: int = 7) -> pd.DataFrame:

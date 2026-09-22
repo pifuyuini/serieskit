@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from kimi_space.stats import _median_and_mad
+from serieskit.stats import _median_and_mad
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

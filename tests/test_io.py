@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from kimi_space.io import load_csv, numeric_summary, numeric_summary_by
+from serieskit.io import load_csv, numeric_summary, numeric_summary_by
 
 CSV_TEXT = "name,a,b\nx,1,1.5\ny,2,2.5\nz,3,3.5\n"
 

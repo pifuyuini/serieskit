@@ -8,26 +8,26 @@ from pathlib import Path
 
 import pytest
 
-import kimi_space
+import serieskit
 
 ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_pyproject_matches_package():
     data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert data["project"]["version"] == kimi_space.__version__
+    assert data["project"]["version"] == serieskit.__version__
 
 
 def test_cargo_matches_package():
     data = tomllib.loads((ROOT / "Cargo.toml").read_text(encoding="utf-8"))
-    assert data["package"]["version"] == kimi_space.__version__
+    assert data["package"]["version"] == serieskit.__version__
 
 
 def test_changelog_documents_current_version():
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     headings = re.findall(r"^## \[(\d+\.\d+\.\d+)\]", changelog, flags=re.M)
     assert headings, "CHANGELOG 没有版本条目"
-    assert headings[0] == kimi_space.__version__
+    assert headings[0] == serieskit.__version__
 
 
 def test_license_exists():
@@ -35,10 +35,10 @@ def test_license_exists():
 
 
 def test_readme_python_cli_subcommands_exist():
-    from kimi_space.cli import main
+    from serieskit.cli import main
 
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    cmds = set(re.findall(r"kimi-space (\w+)", text))
+    cmds = set(re.findall(r"(?:^|`)serieskit ([a-z][a-z_-]*)\b", text, flags=re.M))
     assert {
         "summary",
         "hist",

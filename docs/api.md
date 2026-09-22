@@ -1,8 +1,8 @@
 # API 参考
 
-## Python 包 `kimi_space`
+## Python 包 `serieskit`
 
-### 统计（`kimi_space.stats`）
+### 统计（`serieskit.stats`）
 
 | 函数 | 说明 |
 | --- | --- |
@@ -20,15 +20,15 @@
 
 `SummaryStats` 为 frozen dataclass，`to_dict()` 可转字典。
 
-### 数据装载（`kimi_space.io`）
+### 数据装载（`serieskit.io`）
 
 | 函数 | 说明 |
 | --- | --- |
-| `load_csv(path, *, required_columns=None, numeric_columns=None) -> DataFrame` | 读 CSV；`path="-"` 读标准输入；支持必需列校验与数值列强转 |
+| `load_csv(path, *, required_columns=None, numeric_columns=None, parse_dates=None) -> DataFrame` | 读 CSV；`path="-"` 读标准输入；支持必需列校验与数值列强转 |
 | `numeric_summary(df) -> DataFrame` | 逐数值列统计（行索引为列名） |
 | `numeric_summary_by(df, by) -> DataFrame` | 分组统计（MultiIndex：组 × 列） |
 
-### 变换（`kimi_space.transform`）
+### 变换（`serieskit.transform`）
 
 | 函数 | 说明 |
 | --- | --- |
@@ -38,7 +38,7 @@
 | `log_returns(values) -> ndarray` | 对数收益；比值非正处为 NaN |
 | `robust_zscores(values) -> ndarray` | 稳健 z-score（中位数 + MAD）；MAD=0 时全零 |
 
-### 异常值（`kimi_space.outliers`）
+### 异常值（`serieskit.outliers`）
 
 | 函数 | 说明 |
 | --- | --- |
@@ -49,7 +49,7 @@
 | `mad_mask(values, *, threshold=3.5) -> ndarray[bool]` | MAD 修正 z-score 法正常值掩码（重尾稳健） |
 | `mad_outliers(values, *, threshold=3.5) -> ndarray` | MAD 法判定的异常值 |
 
-### 绘图（`kimi_space.plotting`，均返回 `matplotlib.axes.Axes`）
+### 绘图（`serieskit.plotting`，均返回 `matplotlib.axes.Axes`）
 
 | 函数 | 说明 |
 | --- | --- |
@@ -61,10 +61,10 @@
 | `plot_box(df, *, columns=None, ...)` | 多列箱线图 |
 | `plot_bands(values, *, window=20, num_std=2.0, ...)` | 滑动均值 ± kσ 波动带 |
 | `plot_quantile_bands(values, *, window=20, q_lo=10, q_hi=90, ...)` | 滑动分位数带（无分布假设） |
-| `plot_robust_bands(values, *, window=20, num_mad=3.5, ...)` | 滑动中位数 ± k·MAD 稳健波动带 |
+| `plot_robust_bands(values, *, window=20, num_mad=3.5, ...)` | 滑动中位数 ± k·全局 MAD 稳健波动带 |
 | `plot_outliers(values, *, k=1.5, mask=None, ...)` | 折线 + 异常值散点标注 |
 
-## Rust crate `kimi-space`
+## Rust crate `serieskit`
 
 内核函数（均返回 `Option`/`Vec`，不 panic）：
 `mean`、`sample_std`、`weighted_mean`、`geometric_mean`、`harmonic_mean`、
@@ -72,11 +72,11 @@
 `iqr_mask`、`mad_mask`、`minmax_normalize`、`pct_change`、`log_returns`、`autocorr`、`median_abs_deviation`、
 `robust_zscores`、`diff`。
 
-二进制 `kimi-space-rs`（stdin 读数，stdout 输出）：
+二进制 `serieskit-rs`（stdin 读数，stdout 输出）：
 
 | 子命令 | 输出 |
 | --- | --- |
-| `summary`（默认） | key=value 描述性统计 |
+| `summary`（默认） | key=value 描述性统计；`--json` 输出 JSON，非有限值为 null |
 | `means` | arithmetic/geometric/harmonic 三行 |
 | `mad` | 中位数绝对偏差 |
 | `zscores` / `robust-zscores` / `pct-change` / `log-returns` / `diff` | 逐行变换结果 |
@@ -93,3 +93,15 @@
 | `-V` / `--version` | 版本号 |
 
 Python 与 Rust 的数值一致性由 `tests/test_parity.py` 保证（随机数据，rel 1e-9~1e-12）。
+
+## 数值与输出约定
+
+- Python `summarize`、`median_abs_deviation`、几何及调和平均会剔除 NaN；
+  滑动统计和多数变换会保留或传播 NaN。Rust 不统一剔除 NaN。
+- Python 非法输入通常抛出 ValueError；Rust 按函数返回 None 或空向量。
+  parity 测试覆盖给定的数据域，并不意味着所有边界输入完全等价。
+- 异常值掩码中 True 表示正常值；MAD 为零时，检测只保留中位数值，
+  而稳健标准化返回全零。
+- Python `summary --json` 和 Rust `summary --json` 都以 null 表示非有限值。
+  Python 输出按列名（分组时为组名与列名）组织，Rust 输出单个摘要对象。
+- CLI 图片保存后会关闭对应 Figure；库函数返回 Axes，由调用者管理生命周期。

@@ -1,6 +1,6 @@
-"""kimi-space: 轻量数据分析工具集。"""
+"""serieskit: 轻量数据分析工具集。"""
 
-from kimi_space.outliers import (
+from serieskit.outliers import (
     iqr_mask,
     iqr_outliers,
     mad_mask,
@@ -8,7 +8,7 @@ from kimi_space.outliers import (
     zscore_mask,
     zscore_outliers,
 )
-from kimi_space.stats import (
+from serieskit.stats import (
     SummaryStats,
     autocorr,
     geometric_mean,
@@ -22,7 +22,7 @@ from kimi_space.stats import (
     weighted_mean,
     zscores,
 )
-from kimi_space.transform import (
+from serieskit.transform import (
     diff,
     log_returns,
     minmax_normalize,
@@ -30,7 +30,7 @@ from kimi_space.transform import (
     robust_zscores,
 )
 
-__version__ = "0.20.0"
+__version__ = "0.21.0"
 
 __all__ = [
     "SummaryStats",

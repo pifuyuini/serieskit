@@ -22,3 +22,12 @@ tmp/
 
 # Example artifacts
 examples/output/
+
+# Local tools and generated reports
+.DS_Store
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+htmlcov/
+/report/

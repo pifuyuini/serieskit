@@ -12,8 +12,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats as scipy_stats
 
-from kimi_space.outliers import iqr_mask, mad_mask, zscore_mask
-from kimi_space.stats import (
+from serieskit.outliers import iqr_mask, mad_mask, zscore_mask
+from serieskit.stats import (
     median_abs_deviation,
     moving_average,
     moving_median,

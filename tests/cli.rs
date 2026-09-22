@@ -1,17 +1,17 @@
-//! kimi-space-rs 二进制的集成测试：通过子进程喂 stdin、读 stdout。
+//! serieskit-rs 二进制的集成测试：通过子进程喂 stdin、读 stdout。
 
 use std::io::Write;
 use std::process::{Command, Stdio};
 
 fn run_bin(args: &[&str], input: &str) -> (bool, String, String) {
-    let exe = env!("CARGO_BIN_EXE_kimi-space-rs");
+    let exe = env!("CARGO_BIN_EXE_serieskit-rs");
     let mut child = Command::new(exe)
         .args(args)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .expect("spawn kimi-space-rs");
+        .expect("spawn serieskit-rs");
     child
         .stdin
         .take()
@@ -156,7 +156,7 @@ fn version_flag_prints_version() {
     for flag in ["-V", "--version"] {
         let (ok, stdout, _) = run_bin(&[flag], "");
         assert!(ok);
-        assert!(stdout.contains("kimi-space-rs"));
+        assert!(stdout.contains("serieskit-rs"));
         assert!(stdout.contains(env!("CARGO_PKG_VERSION")));
     }
 }

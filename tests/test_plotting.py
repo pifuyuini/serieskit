@@ -4,7 +4,7 @@ import pytest
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
-from kimi_space.plotting import (
+from serieskit.plotting import (
     apply_style,
     plot_bands,
     plot_box,
@@ -16,7 +16,7 @@ from kimi_space.plotting import (
     plot_robust_bands,
     plot_series,
 )
-from kimi_space.stats import moving_percentile
+from serieskit.stats import moving_percentile
 
 
 @pytest.fixture(autouse=True)

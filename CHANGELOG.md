@@ -2,6 +2,24 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.21.0] - 2026-09-22
+
+### Changed
+
+- Rename the project to SeriesKit: install/import `serieskit`; use `serieskit`
+  and `serieskit-rs` on the command line. Earlier releases used `kimi-space`
+  and `kimi_space`; see README for migration.
+- Move Ruff to development dependencies; add repository metadata, a sample CSV,
+  installation instructions, and a contributor guide.
+- Run Python/Rust checks before publishing Python packages and native Rust
+  binaries for Linux x86_64, macOS arm64, and Windows x86_64 on GitHub Releases.
+
+### Fixed
+
+- Emit standard JSON with null for non-finite summary values.
+- Honor an explicit zero outlier threshold and validate zero series windows.
+- Close saved CLI figures and support `python -m serieskit`.
+
 ## [0.20.0] - 2026-09-21
 
 ### 新增

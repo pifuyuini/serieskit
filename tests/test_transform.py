@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from kimi_space.transform import (
+from serieskit.transform import (
     diff,
     log_returns,
     minmax_normalize,

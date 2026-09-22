@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from kimi_space.outliers import (
+from serieskit.outliers import (
     iqr_mask,
     iqr_outliers,
     mad_mask,

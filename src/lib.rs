@@ -1,10 +1,10 @@
-//! kimi-space 数值内核：与 Python 侧统计能力对应的 Rust 实现。
+//! serieskit 数值内核：与 Python 侧统计能力对应的 Rust 实现。
 
 /// 算术平均值；空输入返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::mean(&[1.0, 2.0, 3.0, 4.0]), Some(2.5));
-/// assert_eq!(kimi_space::mean(&[]), None);
+/// assert_eq!(serieskit::mean(&[1.0, 2.0, 3.0, 4.0]), Some(2.5));
+/// assert_eq!(serieskit::mean(&[]), None);
 /// ```
 pub fn mean(values: &[f64]) -> Option<f64> {
     if values.is_empty() {
@@ -16,8 +16,8 @@ pub fn mean(values: &[f64]) -> Option<f64> {
 /// 加权平均；空输入、长度不一致、权重为负或权重和为 0 返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::weighted_mean(&[80.0, 90.0, 60.0], &[3.0, 2.0, 5.0]), Some(72.0));
-/// assert_eq!(kimi_space::weighted_mean(&[1.0], &[0.0]), None);
+/// assert_eq!(serieskit::weighted_mean(&[80.0, 90.0, 60.0], &[3.0, 2.0, 5.0]), Some(72.0));
+/// assert_eq!(serieskit::weighted_mean(&[1.0], &[0.0]), None);
 /// ```
 pub fn weighted_mean(values: &[f64], weights: &[f64]) -> Option<f64> {
     if values.is_empty() || values.len() != weights.len() {
@@ -36,7 +36,7 @@ pub fn weighted_mean(values: &[f64], weights: &[f64]) -> Option<f64> {
 /// 几何平均；空输入或非正值返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::geometric_mean(&[1.0, 4.0]), Some(2.0));
+/// assert_eq!(serieskit::geometric_mean(&[1.0, 4.0]), Some(2.0));
 /// ```
 pub fn geometric_mean(values: &[f64]) -> Option<f64> {
     if values.is_empty() || values.iter().any(|v| *v <= 0.0) {
@@ -49,7 +49,7 @@ pub fn geometric_mean(values: &[f64]) -> Option<f64> {
 /// 调和平均；空输入或非正值返回 None。
 ///
 /// ```
-/// let h = kimi_space::harmonic_mean(&[1.0, 2.0, 4.0]).unwrap();
+/// let h = serieskit::harmonic_mean(&[1.0, 2.0, 4.0]).unwrap();
 /// assert!((h - 12.0 / 7.0).abs() < 1e-12);
 /// ```
 pub fn harmonic_mean(values: &[f64]) -> Option<f64> {
@@ -64,7 +64,7 @@ pub fn harmonic_mean(values: &[f64]) -> Option<f64> {
 /// lag 不满足 1 <= lag < len 时返回 None；切片方差为 0 时返回 NaN。
 ///
 /// ```
-/// let r = kimi_space::autocorr(&[1.0, 2.0, 3.0, 4.0, 5.0], 1).unwrap();
+/// let r = serieskit::autocorr(&[1.0, 2.0, 3.0, 4.0, 5.0], 1).unwrap();
 /// assert!((r - 1.0).abs() < 1e-12);
 /// ```
 pub fn autocorr(values: &[f64], lag: usize) -> Option<f64> {
@@ -92,8 +92,8 @@ pub fn autocorr(values: &[f64], lag: usize) -> Option<f64> {
 /// 样本标准差（ddof=1）；元素少于 2 个时返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::sample_std(&[1.0, 2.0, 3.0]), Some(1.0));
-/// assert_eq!(kimi_space::sample_std(&[7.0]), None);
+/// assert_eq!(serieskit::sample_std(&[1.0, 2.0, 3.0]), Some(1.0));
+/// assert_eq!(serieskit::sample_std(&[7.0]), None);
 /// ```
 pub fn sample_std(values: &[f64]) -> Option<f64> {
     if values.len() < 2 {
@@ -107,7 +107,7 @@ pub fn sample_std(values: &[f64]) -> Option<f64> {
 /// 等权滑动平均（前缀和 O(n)）；window 为 0 或大于数据长度时返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::moving_average(&[1.0, 2.0, 3.0, 4.0], 2).unwrap(), vec![1.5, 2.5, 3.5]);
+/// assert_eq!(serieskit::moving_average(&[1.0, 2.0, 3.0, 4.0], 2).unwrap(), vec![1.5, 2.5, 3.5]);
 /// ```
 pub fn moving_average(values: &[f64], window: usize) -> Option<Vec<f64>> {
     if window == 0 || window > values.len() {
@@ -130,7 +130,7 @@ pub fn moving_average(values: &[f64], window: usize) -> Option<Vec<f64>> {
 /// 基于样本标准差的标准化；常数序列返回全零，空输入返回空向量。
 ///
 /// ```
-/// assert_eq!(kimi_space::zscores(&[7.0, 7.0]), vec![0.0, 0.0]);
+/// assert_eq!(serieskit::zscores(&[7.0, 7.0]), vec![0.0, 0.0]);
 /// ```
 pub fn zscores(values: &[f64]) -> Vec<f64> {
     let (Some(m), Some(s)) = (mean(values), sample_std(values)) else {
@@ -145,7 +145,7 @@ pub fn zscores(values: &[f64]) -> Vec<f64> {
 /// 滑动窗口样本标准差（ddof=1）；window < 2 或大于数据长度时返回 None。
 ///
 /// ```
-/// let r = kimi_space::moving_std(&[1.0, 2.0, 3.0], 2).unwrap();
+/// let r = serieskit::moving_std(&[1.0, 2.0, 3.0], 2).unwrap();
 /// assert!((r[0] - std::f64::consts::FRAC_1_SQRT_2).abs() < 1e-12);
 /// ```
 pub fn moving_std(values: &[f64], window: usize) -> Option<Vec<f64>> {
@@ -163,7 +163,7 @@ pub fn moving_std(values: &[f64], window: usize) -> Option<Vec<f64>> {
 /// 滑动窗口中位数；window 为 0 或大于数据长度时返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::moving_median(&[1.0, 100.0, 3.0], 2).unwrap(), vec![50.5, 51.5]);
+/// assert_eq!(serieskit::moving_median(&[1.0, 100.0, 3.0], 2).unwrap(), vec![50.5, 51.5]);
 /// ```
 pub fn moving_median(values: &[f64], window: usize) -> Option<Vec<f64>> {
     moving_percentile(values, window, 50.0)
@@ -173,7 +173,7 @@ pub fn moving_median(values: &[f64], window: usize) -> Option<Vec<f64>> {
 /// window 为 0、大于数据长度或 q 越界时返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::moving_percentile(&[1.0, 2.0, 3.0, 4.0], 2, 0.0).unwrap(), vec![1.0, 2.0, 3.0]);
+/// assert_eq!(serieskit::moving_percentile(&[1.0, 2.0, 3.0, 4.0], 2, 0.0).unwrap(), vec![1.0, 2.0, 3.0]);
 /// ```
 pub fn moving_percentile(values: &[f64], window: usize, q: f64) -> Option<Vec<f64>> {
     if window == 0 || window > values.len() || !(0.0..=100.0).contains(&q) {
@@ -194,8 +194,8 @@ pub fn moving_percentile(values: &[f64], window: usize, q: f64) -> Option<Vec<f6
 /// 线性插值分位数（与 numpy 默认方法一致）；空输入或 q 不在 [0, 100] 返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::percentile(&[1.0, 2.0, 3.0, 4.0], 50.0), Some(2.5));
-/// assert_eq!(kimi_space::percentile(&[1.0], 101.0), None);
+/// assert_eq!(serieskit::percentile(&[1.0, 2.0, 3.0, 4.0], 50.0), Some(2.5));
+/// assert_eq!(serieskit::percentile(&[1.0], 101.0), None);
 /// ```
 pub fn percentile(values: &[f64], q: f64) -> Option<f64> {
     if values.is_empty() || !(0.0..=100.0).contains(&q) {
@@ -225,7 +225,7 @@ fn median_and_mad(sorted: &[f64]) -> (f64, f64) {
 /// 空输入返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::median_abs_deviation(&[1.0, 2.0, 3.0, 4.0, 100.0]), Some(1.0));
+/// assert_eq!(serieskit::median_abs_deviation(&[1.0, 2.0, 3.0, 4.0, 100.0]), Some(1.0));
 /// ```
 pub fn median_abs_deviation(values: &[f64]) -> Option<f64> {
     if values.is_empty() {
@@ -240,7 +240,7 @@ pub fn median_abs_deviation(values: &[f64]) -> Option<f64> {
 /// 视为正常值；MAD 为 0 时仅等于中位数的值正常。空输入返回 None。
 ///
 /// ```
-/// let mask = kimi_space::mad_mask(&[1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0], 3.5).unwrap();
+/// let mask = serieskit::mad_mask(&[1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0], 3.5).unwrap();
 /// assert_eq!(mask[6], false);
 /// ```
 pub fn mad_mask(values: &[f64], threshold: f64) -> Option<Vec<bool>> {
@@ -264,7 +264,7 @@ pub fn mad_mask(values: &[f64], threshold: f64) -> Option<Vec<bool>> {
 /// 稳健 z-score：0.6745·(x-median)/MAD；MAD 为 0 或空输入时返回全零/空向量。
 ///
 /// ```
-/// let r = kimi_space::robust_zscores(&[1.0, 2.0, 3.0, 4.0, 100.0]);
+/// let r = serieskit::robust_zscores(&[1.0, 2.0, 3.0, 4.0, 100.0]);
 /// assert!((r[4] - 65.4265).abs() < 1e-12);
 /// ```
 pub fn robust_zscores(values: &[f64]) -> Vec<f64> {
@@ -284,7 +284,7 @@ pub fn robust_zscores(values: &[f64]) -> Vec<f64> {
 /// 空输入返回 None。
 ///
 /// ```
-/// let mask = kimi_space::iqr_mask(&[1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0], 1.5).unwrap();
+/// let mask = serieskit::iqr_mask(&[1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 100.0], 1.5).unwrap();
 /// assert_eq!(mask[6], false);
 /// ```
 pub fn iqr_mask(values: &[f64], k: f64) -> Option<Vec<bool>> {
@@ -317,7 +317,7 @@ fn central_moment(values: &[f64], order: u32) -> Option<f64> {
 /// 偏度（Fisher，m3 / m2^1.5，与 scipy 默认 bias=True 一致）；常数序列为 NaN。
 ///
 /// ```
-/// let s = kimi_space::skew(&[1.0, 2.0, 3.0, 4.0, 100.0]).unwrap();
+/// let s = serieskit::skew(&[1.0, 2.0, 3.0, 4.0, 100.0]).unwrap();
 /// assert!(s > 0.0); // 右偏
 /// ```
 pub fn skew(values: &[f64]) -> Option<f64> {
@@ -334,7 +334,7 @@ pub fn skew(values: &[f64]) -> Option<f64> {
 /// 超额峰度（m4 / m2^2 - 3，正态分布为 0，与 scipy 默认一致）；常数序列为 NaN。
 ///
 /// ```
-/// let k = kimi_space::kurtosis(&[1.0, 2.0, 3.0, 4.0, 5.0]).unwrap();
+/// let k = serieskit::kurtosis(&[1.0, 2.0, 3.0, 4.0, 5.0]).unwrap();
 /// assert!(k < 0.0); // 短尾的均匀序列
 /// ```
 pub fn kurtosis(values: &[f64]) -> Option<f64> {
@@ -367,7 +367,7 @@ pub struct Summary {
 /// 计算描述性统计摘要；空输入返回 None。
 ///
 /// ```
-/// let s = kimi_space::summarize(&[1.0, 2.0, 3.0, 4.0, 5.0]).unwrap();
+/// let s = serieskit::summarize(&[1.0, 2.0, 3.0, 4.0, 5.0]).unwrap();
 /// assert_eq!(s.count, 5);
 /// assert_eq!(s.median, 3.0);
 /// ```
@@ -399,7 +399,7 @@ pub fn summarize(values: &[f64]) -> Option<Summary> {
 /// 空输入或 lo >= hi 返回 None。
 ///
 /// ```
-/// assert_eq!(kimi_space::minmax_normalize(&[10.0, 20.0, 30.0], 0.0, 1.0).unwrap(), vec![0.0, 0.5, 1.0]);
+/// assert_eq!(serieskit::minmax_normalize(&[10.0, 20.0, 30.0], 0.0, 1.0).unwrap(), vec![0.0, 0.5, 1.0]);
 /// ```
 pub fn minmax_normalize(values: &[f64], lo: f64, hi: f64) -> Option<Vec<f64>> {
     if values.is_empty() || lo.partial_cmp(&hi) != Some(std::cmp::Ordering::Less) {
@@ -423,7 +423,7 @@ pub fn minmax_normalize(values: &[f64], lo: f64, hi: f64) -> Option<Vec<f64>> {
 /// 相邻变化率，长度与输入一致；首元素与前值为 0 处为 NaN。
 ///
 /// ```
-/// let r = kimi_space::pct_change(&[100.0, 110.0, 99.0]);
+/// let r = serieskit::pct_change(&[100.0, 110.0, 99.0]);
 /// assert!(r[0].is_nan());
 /// assert!((r[1] - 0.1).abs() < 1e-12);
 /// ```
@@ -440,7 +440,7 @@ pub fn pct_change(values: &[f64]) -> Vec<f64> {
 /// 一阶差分 x_t - x_{t-1}，长度与输入一致；首元素为 NaN。
 ///
 /// ```
-/// let r = kimi_space::diff(&[1.0, 2.0, 4.0, 8.0]);
+/// let r = serieskit::diff(&[1.0, 2.0, 4.0, 8.0]);
 /// assert!(r[0].is_nan());
 /// assert_eq!(&r[1..], &[1.0, 2.0, 4.0]);
 /// ```
@@ -455,7 +455,7 @@ pub fn diff(values: &[f64]) -> Vec<f64> {
 /// 对数收益 ln(v_t / v_{t-1})，首元素与比值非正处为 NaN。
 ///
 /// ```
-/// let r = kimi_space::log_returns(&[1.0, std::f64::consts::E]);
+/// let r = serieskit::log_returns(&[1.0, std::f64::consts::E]);
 /// assert!((r[1] - 1.0).abs() < 1e-12);
 /// ```
 pub fn log_returns(values: &[f64]) -> Vec<f64> {

@@ -17,21 +17,21 @@ fn xorshift_series(n: usize) -> Vec<f64> {
 fn bench_kernels(c: &mut Criterion) {
     let data = xorshift_series(200_000);
     c.bench_function("moving_average w50", |b| {
-        b.iter(|| kimi_space::moving_average(&data, 50))
+        b.iter(|| serieskit::moving_average(&data, 50))
     });
     c.bench_function("moving_std w50", |b| {
-        b.iter(|| kimi_space::moving_std(&data, 50))
+        b.iter(|| serieskit::moving_std(&data, 50))
     });
-    c.bench_function("summarize", |b| b.iter(|| kimi_space::summarize(&data)));
-    c.bench_function("zscores", |b| b.iter(|| kimi_space::zscores(&data)));
+    c.bench_function("summarize", |b| b.iter(|| serieskit::summarize(&data)));
+    c.bench_function("zscores", |b| b.iter(|| serieskit::zscores(&data)));
     c.bench_function("autocorr lag1", |b| {
-        b.iter(|| kimi_space::autocorr(&data, 1))
+        b.iter(|| serieskit::autocorr(&data, 1))
     });
     c.bench_function("mad_mask t3.5", |b| {
-        b.iter(|| kimi_space::mad_mask(&data, 3.5))
+        b.iter(|| serieskit::mad_mask(&data, 3.5))
     });
     c.bench_function("robust_zscores", |b| {
-        b.iter(|| kimi_space::robust_zscores(&data))
+        b.iter(|| serieskit::robust_zscores(&data))
     });
 }
 

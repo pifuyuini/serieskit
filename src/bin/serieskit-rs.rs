@@ -1,17 +1,17 @@
-//! kimi-space-rs：从 stdin 读取空白分隔的数值，按子命令输出统计或变换结果。
+//! serieskit-rs：从 stdin 读取空白分隔的数值，按子命令输出统计或变换结果。
 //!
 //! 用法示例：
-//!   echo "1 2 3 4" | kimi-space-rs              # 等价于 summary
-//!   echo "1 2 3 4" | kimi-space-rs summary      # key=value 描述性统计
-//!   echo "1 2 3 4" | kimi-space-rs zscores      # 逐行输出标准化值
-//!   echo "1 2 3 4" | kimi-space-rs pct-change   # 逐行输出相邻变化率
-//!   echo "1 2 3 4" | kimi-space-rs log-returns  # 逐行输出对数收益
-//!   echo "1 2 3 4" | kimi-space-rs minmax 0 1   # 逐行输出归一化值
+//!   echo "1 2 3 4" | serieskit-rs              # 等价于 summary
+//!   echo "1 2 3 4" | serieskit-rs summary      # key=value 描述性统计
+//!   echo "1 2 3 4" | serieskit-rs zscores      # 逐行输出标准化值
+//!   echo "1 2 3 4" | serieskit-rs pct-change   # 逐行输出相邻变化率
+//!   echo "1 2 3 4" | serieskit-rs log-returns  # 逐行输出对数收益
+//!   echo "1 2 3 4" | serieskit-rs minmax 0 1   # 逐行输出归一化值
 
 use std::io::Read;
 use std::process::ExitCode;
 
-const USAGE: &str = "用法: kimi-space-rs [summary|means|mad|zscores|robust-zscores|pct-change|diff|log-returns|moving-average <w>|moving-std <w>|moving-median <w>|moving-percentile <w> <q>|autocorr [lag]|percentile <q>|outliers [k]|mad-outliers [t]|minmax <lo> <hi>] < 数值";
+const USAGE: &str = "用法: serieskit-rs [summary|means|mad|zscores|robust-zscores|pct-change|diff|log-returns|moving-average <w>|moving-std <w>|moving-median <w>|moving-percentile <w> <q>|autocorr [lag]|percentile <q>|outliers [k]|mad-outliers [t]|minmax <lo> <hi>] < 数值";
 
 fn read_values() -> Result<Vec<f64>, String> {
     let mut buf = String::new();
@@ -43,7 +43,7 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
     if matches!(command, "-V" | "--version") {
-        println!("kimi-space-rs {}", env!("CARGO_PKG_VERSION"));
+        println!("serieskit-rs {}", env!("CARGO_PKG_VERSION"));
         return ExitCode::SUCCESS;
     }
 
@@ -51,7 +51,7 @@ fn main() -> ExitCode {
         let values = read_values()?;
         match command {
             "summary" => {
-                let s = kimi_space::summarize(&values).ok_or("未读取到任何数值")?;
+                let s = serieskit::summarize(&values).ok_or("未读取到任何数值")?;
                 if args.iter().any(|a| a == "--json") {
                     fn num(v: f64) -> String {
                         if v.is_finite() {
@@ -88,11 +88,11 @@ fn main() -> ExitCode {
                     println!("mad={}", s.mad);
                 }
             }
-            "zscores" => print_rows(&kimi_space::zscores(&values)),
-            "robust-zscores" => print_rows(&kimi_space::robust_zscores(&values)),
-            "pct-change" => print_rows(&kimi_space::pct_change(&values)),
-            "diff" => print_rows(&kimi_space::diff(&values)),
-            "log-returns" => print_rows(&kimi_space::log_returns(&values)),
+            "zscores" => print_rows(&serieskit::zscores(&values)),
+            "robust-zscores" => print_rows(&serieskit::robust_zscores(&values)),
+            "pct-change" => print_rows(&serieskit::pct_change(&values)),
+            "diff" => print_rows(&serieskit::diff(&values)),
+            "log-returns" => print_rows(&serieskit::log_returns(&values)),
             "moving-average" => {
                 let window = match args.get(1).and_then(|s| s.parse::<usize>().ok()) {
                     Some(w) => w,
@@ -100,7 +100,7 @@ fn main() -> ExitCode {
                         return Err(format!("moving-average 需要 <window> 参数\n{USAGE}"));
                     }
                 };
-                let out = kimi_space::moving_average(&values, window)
+                let out = serieskit::moving_average(&values, window)
                     .ok_or("window 为 0 或超过数据长度")?;
                 print_rows(&out);
             }
@@ -109,7 +109,7 @@ fn main() -> ExitCode {
                     Some(w) => w,
                     None => return Err(format!("moving-std 需要 <window> 参数\n{USAGE}")),
                 };
-                let out = kimi_space::moving_std(&values, window)
+                let out = serieskit::moving_std(&values, window)
                     .ok_or("window 需 >= 2 且不超过数据长度")?;
                 print_rows(&out);
             }
@@ -120,7 +120,7 @@ fn main() -> ExitCode {
                         return Err(format!("moving-median 需要 <window> 参数\n{USAGE}"));
                     }
                 };
-                let out = kimi_space::moving_median(&values, window)
+                let out = serieskit::moving_median(&values, window)
                     .ok_or("window 为 0 或超过数据长度")?;
                 print_rows(&out);
             }
@@ -133,7 +133,7 @@ fn main() -> ExitCode {
                         "moving-percentile 需要 <window> <q> 两个参数\n{USAGE}"
                     ));
                 };
-                let out = kimi_space::moving_percentile(&values, window, q)
+                let out = serieskit::moving_percentile(&values, window, q)
                     .ok_or("window 为 0、超过数据长度或 q 越界")?;
                 print_rows(&out);
             }
@@ -145,7 +145,7 @@ fn main() -> ExitCode {
                     None => 1,
                 };
                 let r =
-                    kimi_space::autocorr(&values, lag).ok_or("lag 需满足 1 <= lag < 数据长度")?;
+                    serieskit::autocorr(&values, lag).ok_or("lag 需满足 1 <= lag < 数据长度")?;
                 println!("{r}");
             }
             "percentile" => {
@@ -153,23 +153,23 @@ fn main() -> ExitCode {
                     Some(q) => q,
                     None => return Err(format!("percentile 需要 <q> 参数\n{USAGE}")),
                 };
-                let p = kimi_space::percentile(&values, q).ok_or("空输入或 q 不在 [0, 100]")?;
+                let p = serieskit::percentile(&values, q).ok_or("空输入或 q 不在 [0, 100]")?;
                 println!("{p}");
             }
             "mad" => {
-                let m = kimi_space::median_abs_deviation(&values).ok_or("未读取到任何数值")?;
+                let m = serieskit::median_abs_deviation(&values).ok_or("未读取到任何数值")?;
                 println!("{m}");
             }
             "means" => {
-                let a = kimi_space::mean(&values).ok_or("未读取到任何数值")?;
+                let a = serieskit::mean(&values).ok_or("未读取到任何数值")?;
                 println!("arithmetic={a}");
                 println!(
                     "geometric={}",
-                    kimi_space::geometric_mean(&values).unwrap_or(f64::NAN)
+                    serieskit::geometric_mean(&values).unwrap_or(f64::NAN)
                 );
                 println!(
                     "harmonic={}",
-                    kimi_space::harmonic_mean(&values).unwrap_or(f64::NAN)
+                    serieskit::harmonic_mean(&values).unwrap_or(f64::NAN)
                 );
             }
             "outliers" => {
@@ -179,7 +179,7 @@ fn main() -> ExitCode {
                         .map_err(|_| format!("无法解析栅栏系数: {s:?}"))?,
                     None => 1.5,
                 };
-                let mask = kimi_space::iqr_mask(&values, k).ok_or("未读取到任何数值")?;
+                let mask = serieskit::iqr_mask(&values, k).ok_or("未读取到任何数值")?;
                 let out: Vec<f64> = values
                     .iter()
                     .zip(&mask)
@@ -196,7 +196,7 @@ fn main() -> ExitCode {
                         .map_err(|_| format!("无法解析阈值: {s:?}"))?,
                     None => 3.5,
                 };
-                let mask = kimi_space::mad_mask(&values, threshold).ok_or("未读取到任何数值")?;
+                let mask = serieskit::mad_mask(&values, threshold).ok_or("未读取到任何数值")?;
                 let out: Vec<f64> = values
                     .iter()
                     .zip(&mask)
@@ -213,7 +213,7 @@ fn main() -> ExitCode {
                 ) else {
                     return Err(format!("minmax 需要 <lo> <hi> 两个数值参数\n{USAGE}"));
                 };
-                let out = kimi_space::minmax_normalize(&values, lo, hi)
+                let out = serieskit::minmax_normalize(&values, lo, hi)
                     .ok_or("空输入或区间下界不小于上界")?;
                 print_rows(&out);
             }

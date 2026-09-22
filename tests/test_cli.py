@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from kimi_space.cli import main
+from serieskit.cli import main
 
 CSV_TEXT = "name,a,b\nx,1,1.5\ny,2,2.5\nz,3,3.5\n"
 
@@ -240,12 +240,12 @@ class TestParser:
             main([])
 
     def test_version(self, capsys):
-        import kimi_space
+        import serieskit
 
         with pytest.raises(SystemExit) as exc_info:
             main(["--version"])
         assert exc_info.value.code == 0
-        assert f"kimi-space {kimi_space.__version__}" in capsys.readouterr().out
+        assert f"serieskit {serieskit.__version__}" in capsys.readouterr().out
 
 
 class TestOutliers:
@@ -488,3 +488,60 @@ class TestMad:
     def test_non_numeric_column_returns_1(self, csv_path, capsys):
         assert main(["mad", str(csv_path), "name"]) == 1
         assert "error" in capsys.readouterr().err
+
+
+def test_summary_json_uses_null_for_non_finite_values(tmp_path, capsys):
+    csv = tmp_path / "single.csv"
+    csv.write_text("value\n5\n", encoding="utf-8")
+    assert main(["summary", str(csv), "--json"]) == 0
+    payload = json.loads(
+        capsys.readouterr().out,
+        parse_constant=lambda token: pytest.fail(f"Non-standard JSON: {token}"),
+    )
+    assert payload["value"]["skew"] is None
+    assert payload["value"]["kurtosis"] is None
+    assert payload["value"]["mean"] == 5.0
+
+
+@pytest.mark.parametrize("method", ["zscore", "mad"])
+def test_outliers_honors_zero_threshold(tmp_path, capsys, method):
+    csv = tmp_path / "values.csv"
+    csv.write_text("value\n1\n2\n3\n", encoding="utf-8")
+    assert (
+        main(["outliers", str(csv), "value", "--method", method, "--threshold", "0"])
+        == 0
+    )
+    assert capsys.readouterr().out.splitlines() == ["1.0", "3.0"]
+
+
+@pytest.mark.parametrize("option", ["--smooth", "--bands", "--robust-bands"])
+def test_series_rejects_zero_window(csv_path, tmp_path, capsys, option):
+    out = tmp_path / "invalid.png"
+    assert main(["series", str(csv_path), "a", option, "0", "--output", str(out)]) == 1
+    assert "error:" in capsys.readouterr().err
+    assert not out.exists()
+
+
+def test_saved_cli_figure_is_closed(csv_path, tmp_path):
+    from matplotlib import pyplot as plt
+
+    before = set(plt.get_fignums())
+    assert (
+        main(["hist", str(csv_path), "a", "--output", str(tmp_path / "hist.png")]) == 0
+    )
+    assert set(plt.get_fignums()) == before
+
+
+def test_module_entrypoint():
+    import subprocess
+    import sys
+
+    from serieskit import __version__
+
+    result = subprocess.run(
+        [sys.executable, "-m", "serieskit", "--version"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert result.stdout.strip() == f"serieskit {__version__}"

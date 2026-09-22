@@ -106,30 +106,20 @@ The user has granted standing authorization to use subagents, delegation, and pa
 
 ---
 
-## Project Status Snapshot (as of v0.11.0, 2026-09-21)
+## Project Status Snapshot (v0.21.0, 2026-09-22)
 
-This repo is a dual-language data toolkit built from an empty scaffold:
+SeriesKit is a Python data-analysis package and a separate Rust numeric kernel.
+The Python package and import name are `serieskit`; CLI names are `serieskit`
+and `serieskit-rs`. Python does not load Rust as an extension.
 
-- **Python package `kimi_space`** (src layout, installable via `uv sync`):
-  `stats` / `io` / `plotting` / `outliers` / `transform` modules and a
-  `kimi-space` CLI with subcommands `summary` / `hist` / `series` / `heatmap` /
-  `box` / `corr` / `outliers` / `transform` / `autocorr` / `percentile` /
-  `mad` / `report`.
-- **Rust crate** (same repo): numeric kernel `src/lib.rs` mirroring the Python
-  statistics semantics, plus the `kimi-space-rs` stdin binary (`src/bin/`)
-  and criterion benchmarks (`benches/kernels.rs`).
-- Quality gates that must stay green: `.venv/bin/pytest` (coverage 100%,
-  CI floor 95%), `.venv/bin/ruff check .`, `.venv/bin/ruff format --check .`,
-  `.venv/bin/mypy src/kimi_space` (strict), `cargo test`,
-  `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check`,
-  `pre-commit run --all-files`.
-- Cross-language numerical parity is enforced by `tests/test_parity.py`
-  (skipped when cargo is unavailable); doc/CLI drift is guarded by
-  `tests/test_meta.py`.
-- Version numbers live in four places kept in lockstep by
-  `tests/test_meta.py`: `pyproject.toml`, `Cargo.toml`,
-  `src/kimi_space/__init__.py`, `CHANGELOG.md` (top heading).
-- Releases: run `.venv/bin/python scripts/bump_version.py X.Y.Z`, fill the
-  CHANGELOG TODO, run the full gate suite, commit, then `git tag -a vX.Y.Z`.
-  Every feature lands with tests, docs (README / docs/api.md), and a
-  CHANGELOG entry.
+- Python modules: stats, io, plotting, outliers, transform, and cli (12 commands).
+- Rust: src/lib.rs, src/bin/serieskit-rs.rs, integration tests, criterion benchmarks.
+- Preserve statistical contracts, including sample standard deviation, normal-value
+  masks, rolling output lengths, and function-specific NaN/empty-input behavior.
+- Gates: pytest with 95% coverage minimum (including parity), Ruff lint/format,
+  strict mypy, cargo test, cargo clippy --all-targets -- -D warnings, cargo fmt.
+- Versions: pyproject.toml, Cargo.toml, src/serieskit/__init__.py, CHANGELOG heading;
+  keep uv.lock and Cargo.lock synchronized.
+- New features require tests, API documentation, and a CHANGELOG entry.
+- See CONTRIBUTING.md for development and release instructions.
+- Tag releases run the complete CI workflow before publishing GitHub assets.
