@@ -1,6 +1,6 @@
 [project]
 name = "serieskit"
-version = "0.21.0"
+version = "0.21.1"
 description = "Statistics, CSV analysis, and plotting for numerical series"
 readme = "README.md"
 license = { file = "LICENSE" }

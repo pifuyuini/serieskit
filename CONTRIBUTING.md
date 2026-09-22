@@ -52,7 +52,8 @@ API documentation and CHANGELOG.
 1. Run `uv run python scripts/bump_version.py X.Y.Z` and complete the new
    CHANGELOG entry. The script updates four version locations and both lockfiles.
 2. Update versioned installation examples in README and run the checks above.
-3. Commit the release, create an annotated tag `vX.Y.Z`, and push main and that tag.
+3. Commit the release and push main. Create an annotated tag `vX.Y.Z` and push
+   that tag separately after the repository workflows are registered.
 4. The Release workflow runs CI, builds the Python wheel/source distribution and
    native Rust archives, then creates a GitHub Release only after every job passes.
 
@@ -64,3 +65,6 @@ release process.
 Python release artifacts are built from the source distribution and the wheel
 entry point is smoke-tested before upload. Rust assets cover Linux x86_64, macOS
 arm64, and Windows x86_64.
+
+To retry publication manually, run the Release workflow with the release tag as
+the ref. Branch refs are rejected by the version check.

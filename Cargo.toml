@@ -1,6 +1,6 @@
 [package]
 name = "serieskit"
-version = "0.21.0"
+version = "0.21.1"
 edition = "2024"
 description = "Numerical statistics and time-series transformations"
 repository = "https://github.com/pifuyuini/serieskit"

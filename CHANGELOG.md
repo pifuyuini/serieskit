@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定。
 
+## [0.21.1] - 2026-09-22
+
+### Fixed
+
+- Add a manual retry entry point for tagged GitHub Releases.
+- Refresh versioned installation commands for the first public distribution.
+
 ## [0.21.0] - 2026-09-22
 
 ### Changed

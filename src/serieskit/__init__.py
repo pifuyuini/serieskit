@@ -30,7 +30,7 @@ from serieskit.transform import (
     robust_zscores,
 )
 
-__version__ = "0.21.0"
+__version__ = "0.21.1"
 
 __all__ = [
     "SummaryStats",

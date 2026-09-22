@@ -19,10 +19,10 @@ install from the versioned GitHub source:
 
 ```bash
 # CLI in its own environment (requires uv and Git)
-uv tool install "git+https://github.com/pifuyuini/serieskit.git@v0.21.0"
+uv tool install "git+https://github.com/pifuyuini/serieskit.git@v0.21.1"
 
 # Library in your active Python environment
-python -m pip install "git+https://github.com/pifuyuini/serieskit.git@v0.21.0"
+python -m pip install "git+https://github.com/pifuyuini/serieskit.git@v0.21.1"
 
 serieskit --version
 serieskit --help
@@ -30,14 +30,14 @@ serieskit --help
 
 Alternatively, download the Python wheel from
 [Releases](https://github.com/pifuyuini/serieskit/releases/latest) and install it
-with `python -m pip install /path/to/serieskit-0.21.0-py3-none-any.whl`.
+with `python -m pip install /path/to/serieskit-0.21.1-py3-none-any.whl`.
 Both installation methods also resolve the Python runtime dependencies.
 The Rust CLI has separate native downloads for Linux x86_64, macOS Apple Silicon,
 and Windows x86_64; extract the matching archive and run `serieskit-rs --help`
 (`serieskit-rs.exe` on Windows). Other platforms can build from source:
 
 ```bash
-cargo install --git https://github.com/pifuyuini/serieskit.git --tag v0.21.0 --locked
+cargo install --git https://github.com/pifuyuini/serieskit.git --tag v0.21.1 --locked
 ```
 
 No PyPI or crates.io publication is implied by a GitHub release.
