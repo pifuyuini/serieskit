@@ -31,7 +31,7 @@ jobs:
           uv pip install --python wheel-smoke/bin/python dist/*.whl
           wheel-smoke/bin/serieskit --version
           wheel-smoke/bin/python -m serieskit summary examples/sample.csv --json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: python-distributions
           path: dist/*
@@ -71,7 +71,7 @@ jobs:
           New-Item -ItemType Directory bundle
           Copy-Item target/release/serieskit-rs.exe, LICENSE, README.md bundle/
           Compress-Archive -Path bundle/* -DestinationPath serieskit-rs-${{ matrix.platform }}.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: rust-${{ matrix.platform }}
           path: serieskit-rs-${{ matrix.platform }}.*
